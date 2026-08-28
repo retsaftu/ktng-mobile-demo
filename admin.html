@@ -170,7 +170,7 @@ tbody tr:hover{background:#fafbfd}
       <!-- LOCATIONS -->
       <section class="page" id="page-locations">
         <div class="flowhint">Процесс <b>1.2</b>: справочник торговых точек. Название уникальное, удаление мягкое (деактивация), доступ раздельно для хостес и мобильных продавцов, точки видны на карте (активные — зелёные, неактивные — серые).</div>
-        <div class="grid" style="grid-template-columns:1.15fr .85fr">
+        <div class="grid" style="grid-template-columns:1fr">
           <div class="card">
             <div class="row" style="margin-bottom:14px">
               <div class="seg" id="locFilter"><button class="on" data-v="all">Все</button><button data-v="active">Активные</button><button data-v="inactive">Неактивные</button></div>
@@ -179,7 +179,7 @@ tbody tr:hover{background:#fafbfd}
             </div>
             <table><thead><tr><th>Название</th><th>Город</th><th>Координаты</th><th>Доступ</th><th>Статус</th><th></th></tr></thead><tbody id="locBody"></tbody></table>
           </div>
-          <div class="card"><h3>Карта точек<span class="hint">клик по маркеру — детали</span></h3><div id="locMap"></div></div>
+          <div class="card"><h3>Карта точек<span class="hint">клик по маркеру — детали; координаты новой точки ставятся кликом в форме</span></h3><div id="locMap"></div></div>
         </div>
       </section>
 
@@ -195,17 +195,32 @@ tbody tr:hover{background:#fafbfd}
             <div class="field" style="margin:0"><label>Торговая точка</label><select id="fLoc"><option value="">Все</option></select></div>
             <div style="align-self:flex-end;display:flex;gap:8px">
               <button class="btn primary" onclick="renderAnalytics()">Применить</button>
-              <button class="btn" onclick="exportCsv()">⬇ Экспорт CSV</button>
+              <button class="btn" onclick="exportCsv()">⬇ Операции CSV</button>
+              <button class="btn" onclick="exportTrailsCsv()">⬇ Guided Trail CSV</button>
             </div>
           </div>
         </div>
         <div class="grid" style="grid-template-columns:repeat(5,1fr)" id="anKpi"></div>
-        <div class="grid" style="grid-template-columns:1.3fr 1fr;margin-top:16px">
+        <div class="grid" style="grid-template-columns:1.5fr 1fr;margin-top:16px">
           <div class="card"><h3>Heat map операций<span class="hint">красный — высокая активность</span></h3><div id="anMap"></div></div>
           <div class="card"><h3>Динамика по датам</h3><div class="bars" id="anBars"></div><div style="height:16px"></div>
             <h3 style="margin-top:22px">По торговым точкам</h3><div id="anLoc"></div></div>
         </div>
         <div class="card" style="margin-top:16px"><h3>Топ пользователей</h3><div id="anUsers"></div></div>
+
+        <div class="flowhint" style="margin-top:26px">Аналитика по <b>Guided Trail</b> (процессы 2.3 / 3.5): что именно отмечают хостес и продавцы — лайки, дегустация, результаты и причины отказа, ответы профилирования, другие активности. Фильтры сверху действуют и на эти блоки.</div>
+        <div class="grid" style="grid-template-columns:repeat(5,1fr)" id="gtKpi"></div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+          <div class="card"><h3>Результаты Guided Trail<span class="hint">технический / полный</span></h3><div id="gtResult"></div></div>
+          <div class="card"><h3>Причины отказа<span class="hint">множественный выбор</span></h3><div id="gtReasons"></div></div>
+          <div class="card"><h3>Дегустация стиков<span class="hint">только полный сценарий</span></h3><div id="gtSticks"></div></div>
+          <div class="card"><h3>Другие цикловые активности<span class="hint">лайки по активностям</span></h3><div id="gtActs"></div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h3>Профилирование<span class="hint">распределение ответов по вопросам опросника</span></h3><div id="gtProfiling"></div></div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+          <div class="card"><h3>Guided Trail по торговым точкам</h3><div id="gtByLoc"></div></div>
+          <div class="card"><h3>Guided Trail по пользователям</h3><div id="gtByUser"></div></div>
+        </div>
       </section>
 
       <!-- CUSTOMERS -->
@@ -266,12 +281,12 @@ const DB = {
     {id:'l5', name:'Бар Barbary (промо)',city:'Алматы', lat:43.2480, lng:76.9120, h:true,  s:false, active:false},
   ],
   customers: [
-    {id:'c1', fio:'Ерлан Мукашев',    phone:'+7 701 234 56 78', iin:'880412300123', passport:'', birth:'1988-04-12', device:'DM-FLX-8842', regType:'hostess', regBy:'u1', doc:'Удостоверение личности'},
-    {id:'c2', fio:'Асель Нуркеева',   phone:'+7 707 111 22 33', iin:'930127400987', passport:'', birth:'1993-01-27', device:'', regType:'hostess', regBy:'u1', doc:'Удостоверение личности'},
-    {id:'c3', fio:'John Smith',       phone:'+7 705 998 77 66', iin:'', passport:'N4412897', birth:'1985-09-03', device:'DM-FLX-7710', regType:'seller', regBy:'u4', doc:'Паспорт (Великобритания)'},
-    {id:'c4', fio:'Алия Жумабаева',   phone:'+7 747 555 44 33', iin:'910822500456', passport:'', birth:'1991-08-22', device:'', regType:'retail', regBy:null, doc:'Удостоверение личности'},
-    {id:'c5', fio:'Данияр Сериков',   phone:'+7 700 321 65 87', iin:'870305300777', passport:'', birth:'1987-03-05', device:'DM-FLX-9931', regType:'seller', regBy:'u5', doc:'Удостоверение личности'},
-    {id:'c6', fio:'Джон Доу',         phone:'—', iin:'000000000000', passport:'', birth:'', device:'', regType:'system', regBy:null, doc:'Служебный контрагент (продажа без регистрации)'},
+    {id:'c1', fio:'Ерлан Мукашев',    phone:'+7 701 234 56 78', iin:'880412300123', passport:'', birth:'1988-04-12', device:'DM-FLX-8842', regType:'hostess', regBy:'u1', source:'Сервис определения ИИН'},
+    {id:'c2', fio:'Асель Нуркеева',   phone:'+7 707 111 22 33', iin:'930127400987', passport:'', birth:'1993-01-27', device:'', regType:'hostess', regBy:'u1', source:'Сервис определения ИИН'},
+    {id:'c3', fio:'John Smith',       phone:'+7 705 998 77 66', iin:'', passport:'N4412897', birth:'1985-09-03', device:'DM-FLX-7710', regType:'seller', regBy:'u4', source:'Документ: Паспорт'},
+    {id:'c4', fio:'Алия Жумабаева',   phone:'+7 747 555 44 33', iin:'910822500456', passport:'', birth:'1991-08-22', device:'', regType:'retail', regBy:null, source:'Сервис определения ИИН'},
+    {id:'c5', fio:'Данияр Сериков',   phone:'+7 700 321 65 87', iin:'870305300777', passport:'', birth:'1987-03-05', device:'DM-FLX-9931', regType:'seller', regBy:'u5', source:'Сервис определения ИИН'},
+    {id:'c6', fio:'Джон Доу',         phone:'—', iin:'000000000000', passport:'', birth:'', device:'', regType:'system', regBy:null, source:'Служебный контрагент (продажа без регистрации)'},
   ],
   ops: [],
   logs: [],
@@ -311,6 +326,29 @@ const DB = {
       });
     }
   }
+})();
+
+/* Guided Trail: детальные записи (лайки, стики, результаты, опросник, активности) */
+(function seedTrails(){
+  const REASONS=DB.cfg.rejections, STICKS=DB.cfg.sticks, ACTS=DB.cfg.activities.map(a=>a.name);
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const some=(a,p)=>a.filter(()=>Math.random()<p);
+  DB.trails=DB.ops.filter(o=>o.type==='trail').map(o=>{
+    const full=Math.random()<.55, sale=Math.random()<(full?.42:.3);
+    const answers={};
+    DB.cfg.questions.forEach((q,qi)=>{answers[qi]=[pick(q.a)];});
+    const acts={};
+    some(ACTS,.45).forEach(a=>{acts[a]=Math.random()<.75;});
+    return {id:'t'+o.id, date:o.date, userId:o.userId, role:o.role, locId:o.locId,
+      type: full?'full':'technical',
+      presLike: Math.random()<.12? null : Math.random()<.82,
+      sticks: full? some(STICKS,.5) : [],
+      result: sale?'sale':'rejection',
+      reasons: sale? [] : (some(REASONS,.35).length? some(REASONS,.35) : [pick(REASONS)]),
+      profiling: Math.random()<.72? answers : null,
+      gift: Math.random()<.2? null : Math.random()<.6,
+      activities: acts};
+  });
 })();
 
 /* стартовые логи */
@@ -420,7 +458,9 @@ function locDetail(id){
       <div class="kpi"><div class="l">Привязки / Презентации</div><div class="v">${by('bind')} / ${by('trail')}</div></div>
     </div>
     <h3 style="font-size:13.5px">Топ пользователей в точке</h3>
-    <table><thead><tr><th>Пользователь</th><th>Роль</th><th>Операций</th></tr></thead><tbody>${rows||'<tr><td colspan=3 class="muted">Нет данных</td></tr>'}</tbody></table>`,null,true);
+    <table style="margin-bottom:18px"><thead><tr><th>Пользователь</th><th>Роль</th><th>Операций</th></tr></thead><tbody>${rows||'<tr><td colspan=3 class="muted">Нет данных</td></tr>'}</tbody></table>
+    <h3 style="font-size:13.5px">Guided Trail в этой точке</h3>
+    ${trailBlockFor(id)}`,null,true);
 }
 /* ============ 1.1 ПОЛЬЗОВАТЕЛИ ============ */
 let userFilter='all';
@@ -584,6 +624,93 @@ function renderAnalytics(){
   $('#anUsers').innerHTML=`<table><thead><tr><th>Пользователь</th><th>Роль</th><th>Всего операций</th><th>Продаж</th><th>Сумма продаж</th></tr></thead><tbody>`+
     Object.entries(byU).sort((a,b)=>b[1].n-a[1].n).map(([id,v])=>{const u=userById(id);return `<tr><td><b>${esc(u.fio)}</b><div class="muted" style="font-size:12px">${esc(u.email)}</div></td>
       <td><span class="tag ${u.type==='hostess'?'blue':'amber'}">${ROLENAME[u.type]}</span></td><td>${v.n}</td><td>${v.sale}</td><td>${v.sum?fmt(v.sum)+' ₸':'—'}</td></tr>`}).join('')+`</tbody></table>`;
+  renderTrailAnalytics();
+}
+function trailBlockFor(locId){
+  const T=DB.trails.filter(x=>x.locId===locId);
+  if(!T.length)return '<div class="muted" style="font-size:13px">Guided Trail в этой точке не проводились</div>';
+  const sale=T.filter(x=>x.result==='sale').length, like=T.filter(x=>x.presLike===true).length, gift=T.filter(x=>x.gift===true).length;
+  const reasons=sortedPairs(countBy(T.flatMap(x=>x.reasons),r=>r)).slice(0,3);
+  const sticks=sortedPairs(countBy(T.filter(x=>x.type==='full').flatMap(x=>x.sticks),v=>v));
+  return `<div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+      <div class="kpi"><div class="l">Guided Trail</div><div class="v">${T.length}</div></div>
+      <div class="kpi"><div class="l">Конверсия</div><div class="v">${Math.round(sale/T.length*100)}%</div></div>
+      <div class="kpi"><div class="l">Презентация 👍</div><div class="v">${Math.round(like/T.length*100)}%</div></div>
+      <div class="kpi"><div class="l">Гифт выдан</div><div class="v">${gift}</div></div></div>
+    <div class="row" style="align-items:flex-start;gap:22px">
+      <div style="flex:1"><div class="muted" style="font-size:12px;margin-bottom:6px">Топ причин отказа</div>
+        ${reasons.map(([r,n])=>`<div class="row" style="font-size:13px"><span>${esc(r)}</span><span class="spacer"></span><b>${n}</b></div>`).join('')||'<span class="muted">—</span>'}</div>
+      <div style="flex:1"><div class="muted" style="font-size:12px;margin-bottom:6px">Дегустация стиков</div>
+        ${sticks.map(([r,n])=>`<div class="row" style="font-size:13px"><span>${esc(r)}</span><span class="spacer"></span><b>${n}</b></div>`).join('')||'<span class="muted">—</span>'}</div>
+    </div>`;
+}
+function filteredTrails(){
+  const f=$('#fFrom').value,t=$('#fTo').value,role=$('#fRole').value,loc=$('#fLoc').value;
+  return DB.trails.filter(x=>(!f||x.date>=f)&&(!t||x.date<=t)&&(!role||x.role===role)&&(!loc||x.locId===loc));
+}
+function barRows(pairs,total,color){
+  if(!pairs.length)return '<div class="muted" style="font-size:13px">Нет данных за период</div>';
+  const max=Math.max(...pairs.map(p=>p[1]));
+  return pairs.map(([label,n])=>`<div style="margin-bottom:9px">
+    <div class="row" style="font-size:13px"><span>${esc(label)}</span><span class="spacer"></span>
+      <b>${n}</b><span class="muted" style="margin-left:6px">${total?Math.round(n/total*100):0}%</span></div>
+    <div style="background:#f1f5f9;border-radius:5px;height:8px;margin-top:4px"><div style="background:${color||'var(--accent)'};height:8px;border-radius:5px;width:${(n/max*100).toFixed(0)}%"></div></div></div>`).join('');
+}
+function countBy(list,fn){const m={};list.forEach(x=>{const k=fn(x);if(k!=null)m[k]=(m[k]||0)+1;});return m;}
+function sortedPairs(obj){return Object.entries(obj).sort((a,b)=>b[1]-a[1]);}
+function renderTrailAnalytics(){
+  const T=filteredTrails(), n=T.length;
+  const sale=T.filter(x=>x.result==='sale').length;
+  const likeYes=T.filter(x=>x.presLike===true).length, likeNo=T.filter(x=>x.presLike===false).length, likeNull=T.filter(x=>x.presLike===null).length;
+  const giftYes=T.filter(x=>x.gift===true).length;
+  const prof=T.filter(x=>x.profiling).length;
+  $('#gtKpi').innerHTML=[
+    ['Всего Guided Trail',n,''],
+    ['Конверсия в продажу',n?Math.round(sale/n*100)+'%':'—',sale+' из '+n],
+    ['Презентация 👍',n?Math.round(likeYes/n*100)+'%':'—','👎 '+likeNo+' · без оценки '+likeNull],
+    ['Гифт выдан',n?Math.round(giftYes/n*100)+'%':'—',giftYes+' из '+n],
+    ['Профилирование заполнено',n?Math.round(prof/n*100)+'%':'—',prof+' анкет']
+  ].map(([l,v,d])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join('');
+
+  const tech=T.filter(x=>x.type==='technical'), full=T.filter(x=>x.type==='full');
+  const row=(label,arr)=>{const s2=arr.filter(x=>x.result==='sale').length;
+    return `<tr><td><b>${label}</b></td><td>${arr.length}</td><td>${s2}</td><td>${arr.length-s2}</td>
+      <td>${arr.length?Math.round(s2/arr.length*100):0}%</td></tr>`;};
+  $('#gtResult').innerHTML=`<table><thead><tr><th>Тип</th><th>Всего</th><th>Продажа</th><th>Отказ</th><th>Конверсия</th></tr></thead>
+    <tbody>${row('Технический',tech)}${row('Полный',full)}${row('Итого',T)}</tbody></table>`;
+
+  const reasons=countBy(T.flatMap(x=>x.reasons),r=>r);
+  $('#gtReasons').innerHTML=barRows(sortedPairs(reasons),T.filter(x=>x.result==='rejection').length,'#dc2626');
+
+  const sticks=countBy(full.flatMap(x=>x.sticks),v=>v);
+  $('#gtSticks').innerHTML=barRows(sortedPairs(sticks),full.length,'#0ea5e9');
+
+  const acts={};
+  T.forEach(x=>Object.entries(x.activities).forEach(([a,v])=>{acts[a]=acts[a]||{y:0,nn:0};v?acts[a].y++:acts[a].nn++;}));
+  $('#gtActs').innerHTML=Object.keys(acts).length? `<table><thead><tr><th>Активность</th><th>Отмечено</th><th>👍</th><th>👎</th></tr></thead><tbody>`+
+    Object.entries(acts).sort((a,b)=>(b[1].y+b[1].nn)-(a[1].y+a[1].nn)).map(([a,v])=>
+      `<tr><td>${esc(a)}</td><td>${v.y+v.nn}</td><td><span class="tag ok">${v.y}</span></td><td><span class="tag red">${v.nn}</span></td></tr>`).join('')+`</tbody></table>`
+    : '<div class="muted" style="font-size:13px">Нет данных за период</div>';
+
+  $('#gtProfiling').innerHTML=DB.cfg.questions.map((q,qi)=>{
+    const answers=countBy(T.filter(x=>x.profiling).flatMap(x=>x.profiling[qi]||[]),a=>a);
+    const tot=Object.values(answers).reduce((a,b)=>a+b,0);
+    return `<div style="margin-bottom:18px"><b style="font-size:13.5px">${esc(q.q)}</b>
+      <div class="muted" style="font-size:12px;margin-bottom:8px">ответов: ${tot}</div>${barRows(sortedPairs(answers),tot,'#7c3aed')}</div>`;
+  }).join('') || '<div class="muted">Опросник не настроен</div>';
+
+  const byLoc={};T.forEach(x=>{const k=x.locId;byLoc[k]=byLoc[k]||{n:0,sale:0,like:0,gift:0};
+    byLoc[k].n++;if(x.result==='sale')byLoc[k].sale++;if(x.presLike===true)byLoc[k].like++;if(x.gift===true)byLoc[k].gift++;});
+  $('#gtByLoc').innerHTML=`<table><thead><tr><th>Точка</th><th>Trail</th><th>Продажи</th><th>Конверсия</th><th>👍 презентация</th><th>Гифт</th></tr></thead><tbody>`+
+    Object.entries(byLoc).sort((a,b)=>b[1].n-a[1].n).map(([id,v])=>`<tr><td><a onclick="locDetail('${id}')" style="cursor:pointer">${esc(locById(id).name)}</a></td>
+      <td>${v.n}</td><td>${v.sale}</td><td>${Math.round(v.sale/v.n*100)}%</td><td>${Math.round(v.like/v.n*100)}%</td><td>${v.gift}</td></tr>`).join('')
+    +`</tbody></table>`||'';
+  const byU={};T.forEach(x=>{byU[x.userId]=byU[x.userId]||{n:0,sale:0,prof:0};byU[x.userId].n++;
+    if(x.result==='sale')byU[x.userId].sale++;if(x.profiling)byU[x.userId].prof++;});
+  $('#gtByUser').innerHTML=`<table><thead><tr><th>Пользователь</th><th>Роль</th><th>Trail</th><th>Конверсия</th><th>Анкет</th></tr></thead><tbody>`+
+    Object.entries(byU).sort((a,b)=>b[1].n-a[1].n).map(([id,v])=>{const u=userById(id);
+      return `<tr><td>${esc(u.fio)}</td><td><span class="tag ${u.type==='hostess'?'blue':'amber'}">${ROLENAME[u.type]}</span></td>
+        <td>${v.n}</td><td>${Math.round(v.sale/v.n*100)}%</td><td>${v.prof}</td></tr>`}).join('')+`</tbody></table>`;
 }
 function exportCsv(){
   const ops=filteredOps();
@@ -592,6 +719,22 @@ function exportCsv(){
   const csv=rows.map(r=>r.join(';')).join('\n');
   const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('﻿'+csv);a.download='analytics.csv';a.click();
   toast('⬇ Файл analytics.csv сформирован ('+ops.length+' строк)','ok');
+}
+
+function exportTrailsCsv(){
+  const T=filteredTrails();
+  const qs=DB.cfg.questions.map(q=>q.q);
+  const rows=[['id','date','role','user','location','type','presentation_like','sticks_used','result','rejection_reasons','gift_given','activities'].concat(qs)];
+  T.forEach(x=>{
+    rows.push([x.id,x.date,ROLENAME[x.role],userById(x.userId).fio,locById(x.locId).name,x.type,
+      x.presLike===null?'':x.presLike?'like':'dislike',x.sticks.join('|'),x.result,x.reasons.join('|'),
+      x.gift===null?'':x.gift?'yes':'no',
+      Object.entries(x.activities).map(([a,v])=>a+':'+(v?'like':'dislike')).join('|')]
+      .concat(qs.map((_,qi)=>x.profiling?(x.profiling[qi]||[]).join('|'):'')));
+  });
+  const csv=rows.map(r=>r.map(v=>String(v).replace(/;/g,',')).join(';')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\ufeff'+csv);a.download='guided_trail.csv';a.click();
+  toast('⬇ Файл guided_trail.csv сформирован ('+T.length+' записей)','ok');
 }
 
 /* ============ ПОКУПАТЕЛИ ============ */
@@ -609,7 +752,7 @@ function renderCustomers(){
   $('#custBody').innerHTML=list.map(c=>`<tr>
     <td><b>${esc(c.fio)}</b><div class="muted" style="font-size:12px">${esc(c.birth||'')}</div></td>
     <td class="mono">${esc(c.phone)}</td>
-    <td class="mono">${c.iin?esc(c.iin):'<span class="tag red">паспорт '+esc(c.passport)+'</span>'}</td>
+    <td class="mono">${c.iin?esc(c.iin)+(c.source&&c.source.indexOf('Сервис')===0?' <span class="tag ok" style="font-family:inherit">сервис ИИН</span>':''):'<span class="tag red">паспорт '+esc(c.passport)+'</span>'}</td>
     <td>${c.device?'<span class="tag ok mono">'+esc(c.device)+'</span>':'<span class="muted">не привязано</span>'}</td>
     <td>${regLabel(c)}</td>
     <td style="text-align:right"><button class="btn sm" onclick="custCard('${c.id}')">Карточка клиента</button></td></tr>`).join('');
@@ -623,7 +766,7 @@ function custCard(id){
       <tr><td class="muted">Телефон</td><td class="mono">${esc(c.phone)}</td></tr>
       <tr><td class="muted">${c.iin?'ИИН':'Номер паспорта'}</td><td class="mono">${esc(c.iin||c.passport)}</td></tr>
       <tr><td class="muted">Дата рождения</td><td>${esc(c.birth||'—')}</td></tr>
-      <tr><td class="muted">Документ</td><td>${esc(c.doc)}</td></tr>
+      <tr><td class="muted">Источник данных</td><td>${esc(c.source||'—')}</td></tr>
       <tr><td class="muted">Устройство</td><td>${c.device?'<span class="tag ok mono">'+esc(c.device)+'</span>':'—'}</td></tr>
     </table>
     <h3 style="font-size:13.5px">Профилирование</h3>
