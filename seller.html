@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KT&amp;G — Мобильный продавец (демо)</title>
+<style>
+:root{--bg:#eef1f6;--panel:#fff;--ink:#0f172a;--muted:#6b7789;--line:#e5e9f0;--accent:#2563eb;--accent-soft:#e8efff;--danger:#dc2626;--danger-soft:#fee2e2;
+ --ok:#12805c;--ok-soft:#e7f6f0;--warn:#b45309;--warn-soft:#fdf3e3;--info:#1d4ed8;--info-soft:#e9efff;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#e7ecf4;font:15px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+ display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+button,input,select,textarea{font:inherit;color:inherit}
+/* планшет */
+.tablet{width:1120px;max-width:100%;height:min(820px,92vh);background:#fff;border:1px solid #d7dfeb;border-radius:26px;padding:12px;box-shadow:0 24px 60px rgba(15,23,42,.14);display:flex;flex-direction:column}
+.screen{flex:1;background:var(--bg);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.devlabel{color:#94a3b8;font-size:11px;text-align:center;padding:5px 0 7px;letter-spacing:1px;text-transform:uppercase}
+/* header */
+.appbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.appbar .logo{font-weight:800;letter-spacing:.5px;color:var(--accent)}
+.locbtn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 12px;cursor:pointer;max-width:340px}
+.locbtn .lab{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.locbtn b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.netpill{display:flex;align-items:center;gap:7px;border-radius:99px;padding:6px 12px;font-size:12.5px;font-weight:650;cursor:pointer;border:1px solid transparent}
+.netpill.on{background:var(--ok-soft);color:var(--ok)}
+.netpill.off{background:var(--warn-soft);color:var(--warn)}
+.netpill i{width:8px;height:8px;border-radius:99px;background:currentColor;display:block}
+.syncbadge{background:var(--accent);color:#fff;border-radius:99px;font-size:11px;padding:2px 7px;font-weight:700}
+.body{flex:1;overflow:auto;padding:20px}
+/* primitives */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h3{margin:0 0 14px;font-size:15px}
+.grid{display:grid;gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 18px;cursor:pointer;font-size:15px;font-weight:600}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.sm{padding:8px 13px;font-size:13.5px;border-radius:10px}
+.btn.block{width:100%;justify-content:center;text-align:center}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;cursor:pointer;transition:.15s;min-height:150px;display:flex;flex-direction:column}
+.tile:hover{border-color:#cbd5e1;transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.07)}
+.tile .ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--accent-soft);color:var(--accent);margin-bottom:14px}
+.tile b{font-size:16.5px}
+.tile p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+.tile .n{margin-top:auto;font-size:11px;color:#94a3b8;letter-spacing:.5px;text-transform:uppercase}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;outline:none;font-size:15.5px}
+.field input:focus{border-color:#94a3b8}
+.field .err{color:var(--danger);font-size:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;padding:4px 10px;border-radius:99px;background:#f1f5f9;color:var(--muted)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.red{background:var(--danger-soft);color:var(--danger)}
+.tag.blue{background:var(--info-soft);color:var(--info)}
+.tag.amber{background:var(--warn-soft);color:var(--warn)}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.steps{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.step{flex:1;min-width:110px;border-top:3px solid var(--line);padding-top:8px;font-size:12px;color:#94a3b8}
+.step.on{border-color:var(--accent);color:var(--accent);font-weight:650}
+.step.done{border-color:var(--ok);color:var(--ok)}
+.pagehead{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.pagehead h2{margin:0;font-size:20px}
+.pagehead .sub{color:var(--muted);font-size:13px}
+.like{display:inline-flex;gap:10px}
+.like button{border:1px solid var(--line);background:#fff;border-radius:14px;width:74px;height:56px;font-size:24px;cursor:pointer}
+.like button.on{border-color:var(--accent);background:var(--accent-soft)}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;background:#fff}
+.chk.on{border-color:var(--accent);background:var(--accent-soft)}
+.chk input{width:19px;height:19px;accent-color:var(--accent)}
+.list .it{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:#fff;cursor:pointer}
+.list .it:hover{border-color:#cbd5e1}
+.list .it .av{width:42px;height:42px;border-radius:12px;background:#eef2f7;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted)}
+.result{text-align:center;padding:28px 20px}
+.result .big{font-size:54px;line-height:1}
+.result h2{margin:14px 0 6px;font-size:22px}
+.modal-bg{position:absolute;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px}
+.modal{background:#fff;border-radius:18px;width:560px;max-width:100%;max-height:100%;overflow:auto}
+.modal .mh{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center}
+.modal .mh h3{margin:0;font-size:17px}
+.modal .mb{padding:18px 20px}
+.modal .mf{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;background:#fbfcfe}
+.toasts{position:absolute;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:60;pointer-events:none}
+.toast{background:#1e293b;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;box-shadow:0 12px 30px rgba(2,6,23,.3);max-width:80%}
+.toast.err{background:var(--danger)}.toast.ok{background:var(--ok)}
+.hint{background:var(--info-soft);border:1px solid #cfdcff;color:#1e3a8a;border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:16px}
+.screenpage{display:none}.screenpage.on{display:block}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--line)}
+td{padding:11px 8px;border-bottom:1px solid #f1f5f9}
+.login{display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(165deg,#e8efff,#dbe7fb 55%,#eef2f7)}
+.loginbox{background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px;width:420px;max-width:92%;box-shadow:0 16px 40px rgba(15,23,42,.08)}
+.loginbox h1{margin:0 0 4px;font-size:24px}
+.kbd{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px}
+.kbd button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;font-size:19px;font-weight:600;cursor:pointer}
+.otpbox{display:flex;gap:9px;justify-content:center;margin:14px 0}
+.otpbox div{width:48px;height:58px;border:2px solid var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.otpbox div.f{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="tablet">
+  <div class="devlabel">Планшет · приложение мобильного продавца (Flutter)</div>
+  <div class="screen" id="screen">
+
+    <div id="loginScreen" class="login">
+      <div class="loginbox">
+        <div style="color:var(--accent);font-weight:800;letter-spacing:1px;margin-bottom:14px">KT&amp;G MOBILE</div>
+        <h1>Вход</h1>
+        <p class="muted" style="margin:0 0 20px;font-size:13.5px">Процесс 4.3 · после входа подтягиваются сотрудник и склад из 1С</p>
+        <div class="field"><label>Email</label><input id="lgEmail" value="ruslan.s@ktng.kz"></div>
+        <div class="field"><label>Пароль</label><input id="lgPass" type="password" value="Vt3$nQ8pLw1K"><div class="err" id="lgErr" style="display:none"></div></div>
+        <button class="btn primary block" onclick="doLogin()">Войти</button>
+      </div>
+    </div>
+
+    <div id="appScreen" style="display:none;flex-direction:column;height:100%">
+      <div class="appbar">
+        <div class="logo">KT&amp;G</div>
+        <button class="locbtn" onclick="openLocPicker()"><span>⚑</span><span><span class="lab">Торговая точка</span><b id="curLoc">—</b></span><span class="muted">▾</span></button>
+        <div class="locbtn" style="cursor:default"><span>▤</span><span><span class="lab">Склад 1С</span><b id="curWh">Склад МП-01</b></span></div>
+        <div class="spacer"></div>
+        <button class="netpill on" id="netPill" onclick="toggleNet()"><i></i><span id="netTxt">Онлайн</span></button>
+        <button class="btn sm" onclick="openSync()">Очередь <span class="syncbadge" id="syncBadge">0</span></button>
+        <button class="btn sm ghost" onclick="goHome()">🏠</button>
+        <button class="btn sm ghost" onclick="logout()">Выход</button>
+      </div>
+      <div class="body" id="body"></div>
+    </div>
+    <div id="modalRoot"></div>
+    <div class="toasts" id="toasts"></div>
+  </div>
+</div>
+<script>
+/* ================= СОСТОЯНИЕ ================= */
+const ME={id:'u4',fio:'Руслан Бекеев',email:'ruslan.s@ktng.kz',role:'seller',emp:'Бекеев Р.А. (1С: 000241)',wh:'Склад МП-01'};
+const LOCS=[{id:'l1',name:'ТРЦ Dostyk Plaza',city:'Алматы'},{id:'l4',name:'ТРЦ Forum',city:'Алматы'},{id:'l2',name:'ТРЦ Mega Alma-Ata',city:'Алматы'}];
+const CFG={sticks:['Faiim Regular','Faiim Ruby','Faiim Sapphire'],
+  rejections:['Высокая цена','Не понравился вкус','Уже есть устройство','Не интересно','Другое'],
+  questions:[{q:'Что курите сейчас?',a:['Системы нагревания','Одноразки','Не курю']},
+             {q:'Какой вкус предпочитаете?',a:['Классический','Ментол','Ягодный','Цитрус']},
+             {q:'Знаете ли вы бренд flex?',a:['Да, пользуюсь','Слышал(а)','Нет']}],
+  activities:[{name:'Тест-драйв устройства',type:'like_form'},{name:'Розыгрыш / механика',type:'like'},{name:'Подписка на рассылку',type:'like'}]};
+/* склад продавца · у устройств и стиков есть Data Matrix на каждой единице */
+const STOCK=[
+  {sku:'4870001',name:'flex SOLID 2.0 (устройство)',price:19900,qty:8,device:true,stick:false,dm:true},
+  {sku:'4870002',name:'flex HYBRID 3.0 (устройство)',price:24900,qty:4,device:true,stick:false,dm:true},
+  {sku:'4870010',name:'Faiim Regular стики (блок)',price:12500,qty:24,device:false,stick:true,dm:true},
+  {sku:'4870011',name:'Faiim Ruby стики (блок)',price:12500,qty:17,device:false,stick:true,dm:true},
+  {sku:'4870012',name:'Faiim Sapphire стики (блок)',price:12500,qty:9,device:false,stick:true,dm:true},
+  {sku:'4870020',name:'Чехол для устройства',price:4900,qty:12,device:false,stick:false,dm:false}];
+/* основной склад для заявок на перемещение */
+const MAIN_STOCK=[{sku:'4870001',name:'flex SOLID 2.0 (устройство)',qty:120},{sku:'4870002',name:'flex HYBRID 3.0 (устройство)',qty:64},
+  {sku:'4870010',name:'Faiim Regular стики (блок)',qty:800},{sku:'4870011',name:'Faiim Ruby стики (блок)',qty:640},
+  {sku:'4870012',name:'Faiim Sapphire стики (блок)',qty:310},{sku:'4870020',name:'Чехол для устройства',qty:200}];
+/* Data Matrix: устройства (привязываются к покупателю) и стики (маркировка пачки) */
+const DEVICE_CODES={'DM-FLX-1001':null,'DM-FLX-1002':null,'DM-FLX-2201':null,'DM-FLX-2202':null,'DM-FLX-8842':'c1'};
+const STICK_CODES=['DM-FAI-3001','DM-FAI-3002','DM-FAI-3003','DM-FAI-3004','DM-FAI-3005','DM-FAI-3006','DM-FAI-3007','DM-FAI-3008'];
+const USED_STICKS=[];
+/* промокоды: НЕ влияют на сумму чека, начисляют бонусы в личный кабинет покупателя */
+const PROMOS={'FLEX2026':500,'BONUS500':500,'LETO26':300};
+const S={online:true,loc:LOCS[0],flow:{},cart:[],queue:[]};
+
+/* ================= УТИЛИТЫ ================= */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=p=>p+Math.random().toString(36).slice(2,7);
+const digits=s=>String(s).replace(/\D/g,'');
+const fmt=n=>new Intl.NumberFormat('ru-RU').format(n);
+const initials=f=>f.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+function toast(m,k){const t=document.createElement('div');t.className='toast '+(k||'');t.innerHTML=m;$('#toasts').appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity=0;setTimeout(()=>t.remove(),400)},3000);}
+function modal(title,body,footer){$('#modalRoot').innerHTML=`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">
+  <div class="mh"><h3>${title}</h3><div class="spacer"></div><button class="btn sm ghost" onclick="closeModal()">✕</button></div>
+  <div class="mb">${body}</div><div class="mf">${footer||'<button class="btn" onclick="closeModal()">Закрыть</button>'}</div></div></div>`;}
+function closeModal(){$('#modalRoot').innerHTML='';}
+function setBody(h){$('#body').innerHTML=h;$('#body').scrollTop=0;}
+function head(t,s){return `<div class="pagehead"><button class="btn sm ghost" onclick="goHome()">←</button><div><h2>${t}</h2><div class="sub">${s||''}</div></div></div>`;}
+function steps(list,cur){return `<div class="steps">${list.map((s,i)=>`<div class="step ${i===cur?'on':i<cur?'done':''}">${i+1}. ${s}</div>`).join('')}</div>`;}
+function findByPhone(p){const d=digits(p);return CUSTOMERS.find(c=>digits(c.phone)===d);}
+function finishScreen(title,text,icon,actions){
+  setBody(`<div class="card result" style="max-width:640px;margin:26px auto"><div class="big">${icon||'✅'}</div><h2>${title}</h2>
+    <div class="muted" style="font-size:15px">${text}</div>
+    <div class="row" style="justify-content:center;margin-top:22px">${(actions||[]).map(a=>`<button class="btn" onclick="${a.fn}">${a.t}</button>`).join('')}
+    <button class="btn primary" onclick="goHome()">На главную</button></div></div>`);
+}
+
+/* ================= ВХОД / ШАПКА ================= */
+function doLogin(){
+  if(!$('#lgEmail').value.trim()||!$('#lgPass').value){$('#lgErr').style.display='block';$('#lgErr').textContent='❌ Неверный email или пароль';return;}
+  $('#loginScreen').style.display='none';$('#appScreen').style.display='flex';
+  $('#curLoc').textContent=S.loc.name;$('#curWh').textContent=ME.wh;
+  updBadge();goHome();toast('✅ Авторизован: '+esc(ME.fio)+' · '+esc(ME.wh),'ok');
+}
+function logout(){$('#appScreen').style.display='none';$('#loginScreen').style.display='flex';}
+function toggleNet(){S.online=!S.online;const p=$('#netPill');p.className='netpill '+(S.online?'on':'off');
+  $('#netTxt').textContent=S.online?'Онлайн':'Офлайн';
+  toast(S.online?'Соединение восстановлено — можно синхронизировать очередь':'Без интернета продажа недоступна (3.1 только онлайн). Регистрация и Guided Trail уходят в очередь',S.online?'ok':'err');
+  if($('#body').dataset.page)renderPage($('#body').dataset.page);}
+function openLocPicker(){
+  modal('Выбор торговой точки (4.2)',`<p class="muted" style="margin-top:0">Точки, доступные мобильным продавцам. Текущая точка уходит во все операции.</p>
+    <div class="list">${LOCS.map(l=>`<div class="it" onclick="pickLoc('${l.id}')"><div class="av">⚑</div><div style="flex:1"><b>${esc(l.name)}</b>
+      <div class="muted" style="font-size:13px">${esc(l.city)}</div></div>${l.id===S.loc.id?'<span class="tag ok">Текущая</span>':''}</div>`).join('')}</div>`,'');
+}
+function pickLoc(id){S.loc=LOCS.find(l=>l.id===id);$('#curLoc').textContent=S.loc.name;closeModal();toast('Точка: '+esc(S.loc.name),'ok');}
+
+/* ================= ГЛАВНАЯ ================= */
+const PAGES={home:renderHome,sale:renderSale,cash:renderCash,move:renderMove,cust:renderCust,trail:renderTrail,reg:renderReg};
+function renderPage(p){$('#body').dataset.page=p;PAGES[p]();}
+function goHome(){renderPage('home');}
+function renderHome(){
+  const cash=SALES.filter(s=>!s.collected&&s.pay==='Наличные').reduce((a,b)=>a+b.sum,0);
+  setBody(`
+  <div class="row" style="margin-bottom:18px">
+    <div><h2 style="margin:0;font-size:22px">${esc(ME.fio)}</h2>
+      <div class="muted" style="font-size:13.5px">${esc(ME.emp)} · ${esc(ME.wh)} · точка: <b>${esc(S.loc.name)}</b></div></div>
+    <div class="spacer"></div>
+    ${cash?`<span class="tag amber">К инкассации: ${fmt(cash)} ₸</span>`:'<span class="tag ok">Инкассация закрыта</span>'}
+    ${S.online?'':'<span class="tag red">Офлайн — продажи недоступны</span>'}
+  </div>
+  <div class="tiles">
+    <div class="tile" onclick="renderPage('sale')"><div class="ic">₸</div><b>Продажа</b><p>Покупатель → товары → акции → оплата. Устройство привязывается автоматически.</p><div class="n">Процесс 3.1 · только онлайн</div></div>
+    <div class="tile" onclick="renderPage('trail')"><div class="ic">★</div><b>Guided Trail</b><p>Презентация, дегустация, профилирование, гифт, активности.</p><div class="n">Процесс 3.5</div></div>
+    <div class="tile" onclick="renderPage('cust')"><div class="ic">☺</div><b>Покупатели</b><p>Все пользователи с признаком, кто их зарегистрировал. Редактирование без ограничений.</p><div class="n">Процесс 3.4</div></div>
+    <div class="tile" onclick="renderPage('cash')"><div class="ic">⛁</div><b>Инкассация <span class="tag amber" style="vertical-align:middle">в проработке</span></b><p>Отметка о внесении наличных на счёт компании.</p><div class="n">Процесс 3.2 · процесс не финализирован</div></div>
+    <div class="tile" onclick="renderPage('move')"><div class="ic">⇥</div><b>Заявка на перемещение <span class="tag amber" style="vertical-align:middle">в проработке</span></b><p>Товар с основного склада на склад продавца. Согласование: директор → складовщик.</p><div class="n">Процесс 3.3 · процесс не финализирован</div></div>
+    <div class="tile" onclick="renderPage('reg')"><div class="ic">＋</div><b>Регистрация покупателя</b><p>ИИН или паспорт, онлайн с OTP.</p><div class="n">Процесс 4.1</div></div>
+    <div class="tile" onclick="openSync()"><div class="ic">⟳</div><b>Очередь синхронизации</b><p>Операции, сохранённые офлайн (регистрация, Guided Trail), и статусы их отправки.</p><div class="n">Офлайн-режим</div></div>
+  </div>`);
+}
+/* ================= 3.1 ПРОДАЖА ================= */
+function renderSale(prefill){
+  if(!S.online){setBody(head('Продажа','Процесс 3.1')+`<div class="card result" style="max-width:580px;margin:20px auto">
+    <div class="big">📴</div><h2>Нет интернета</h2><p class="muted">Продажа возможна только онлайн: документ реализации создаётся в 1С в момент оплаты.
+    Офлайн доступны регистрация покупателя и Guided Trail — они уходят в очередь синхронизации.</p>
+    <button class="btn primary" onclick="goHome()">На главную</button></div>`);return;}
+  S.flow={step:0,phone:prefill||'',customer:null,anon:false,pay:null,promo:null,promoErr:''};S.cart=[];
+  saleStep();
+}
+const cartTotal=()=>S.cart.reduce((a,i)=>a+i.price*i.n,0);
+function promoRule(){
+  const hasDev=S.cart.some(i=>i.device), hasStick=S.cart.some(i=>i.stick), total=cartTotal();
+  if(hasDev&&hasStick)return{rate:.10,label:'Акция «Устройство + стики»: −10%'};
+  if(total>=40000)return{rate:.05,label:'Акция «Чек от 40 000 ₸»: −5%'};
+  return{rate:0,label:'Подходящих акций для этого чека нет'};
+}
+function saleStep(){
+  const f=S.flow,ST=['Покупатель','Товары и Data Matrix','Оплата'];
+  if(f.step===0){
+    setBody(head('Продажа','Процесс 3.1 · шаг 1: авторизация покупателя')+steps(ST,0)+`
+    <div class="card" style="max-width:620px">
+      <div class="field"><label>Номер телефона покупателя</label><input id="sPhone" value="${esc(f.phone)}" placeholder="+7 7__ ___ __ __"></div>
+      <div class="muted" style="font-size:12.5px;margin-bottom:12px">Демо: +7 701 234 56 78 · +7 747 555 44 33 · любой другой номер = «не найден»</div>
+      <div id="sFind"></div>
+      <button class="btn primary block" onclick="saleFind()">Проверить покупателя</button>
+    </div>`);
+  } else if(f.step===1){
+    setBody(head('Продажа','Процесс 3.1 · шаг 2: товары и коды Data Matrix')+steps(ST,1)+`
+    <div class="grid" style="grid-template-columns:1.15fr .85fr">
+      <div class="card"><h3>Каталог склада <span class="muted" style="font-weight:400;font-size:12.5px">${esc(ME.wh)}</span></h3>
+        <div class="field"><input id="sBar" placeholder="Поиск по названию или артикулу" oninput="stockList()"></div>
+        <div id="stockList" class="list"></div></div>
+      <div class="card"><h3>Чек</h3>
+        <div id="cartList"></div>
+        <div id="dmBlock"></div>
+        <div style="border-top:1px solid var(--line);margin-top:12px;padding-top:12px">
+          <div class="row"><span class="muted">Итого</span><span class="spacer"></span><b style="font-size:20px">${fmt(cartTotal())} ₸</b></div>
+          <p class="muted" style="font-size:12.5px;margin:8px 0 0">Акции рассчитаются автоматически на экране оплаты.</p>
+          <button class="btn primary block" style="margin-top:10px" ${S.cart.length?'':'disabled'} onclick="S.flow.step=2;saleStep()">К оплате</button>
+          <button class="btn ghost block sm" style="margin-top:4px" onclick="S.flow.step=0;saleStep()">Назад</button>
+        </div></div></div>`);
+    stockList();cartList();dmBlock();
+  } else {
+    const total=cartTotal(), rule=promoRule(), disc=Math.round(total*rule.rate), pay=total-disc;
+    setBody(head('Продажа','Процесс 3.1 · шаг 3: оплата')+steps(ST,2)+`
+    <div class="grid" style="grid-template-columns:1fr 1fr;max-width:1000px">
+      <div class="card"><h3>Чек</h3>
+        ${S.cart.map(i=>`<div class="row" style="padding:7px 0;border-bottom:1px solid #f1f5f9"><div style="flex:1">
+          <b style="font-size:13.5px">${esc(i.name)}</b><div class="muted" style="font-size:12px">${fmt(i.price)} ₸ × ${i.n}${i.dm?' · '+(i.codes||[]).filter(Boolean).length+' DM':''}</div></div>
+          <b>${fmt(i.price*i.n)} ₸</b></div>`).join('')}
+        <div class="row" style="margin-top:12px"><span class="muted">Сумма</span><span class="spacer"></span><b>${fmt(total)} ₸</b></div>
+        <div class="row" style="color:${rule.rate?'var(--ok)':'var(--muted)'}"><span>${rule.label}</span><span class="spacer"></span><b>${rule.rate?'− '+fmt(disc)+' ₸':'—'}</b></div>
+        <div class="row" style="margin-top:8px;border-top:1px solid var(--line);padding-top:10px"><span class="muted">К оплате</span><span class="spacer"></span><b style="font-size:24px">${fmt(pay)} ₸</b></div>
+      </div>
+      <div class="card"><h3>Промокод <span class="muted" style="font-weight:400;font-size:12px">не влияет на сумму чека</span></h3>
+        <div class="hint" style="margin-bottom:12px">Промокод — внутренние бонусы: баллы начисляются покупателю в личный кабинет. Сумма чека не меняется.</div>
+        ${f.promo?`<div class="row" style="margin-bottom:12px"><span class="tag ok">${esc(f.promo.code)}</span><span class="muted">+${f.promo.points} баллов в ЛК</span>
+            <span class="spacer"></span><button class="btn sm ghost" onclick="S.flow.promo=null;saleStep()">Убрать</button></div>`
+          :`<div class="field"><input id="sPromo" placeholder="например FLEX2026" style="text-transform:uppercase">
+             ${f.promoErr?`<div class="err" style="color:var(--danger)">${esc(f.promoErr)}</div>`:''}</div>
+            <button class="btn block sm" onclick="applyPromoCode()">Применить промокод</button>
+            <div class="muted" style="font-size:12px;margin-top:8px">Демо-коды: FLEX2026, BONUS500, LETO26</div>`}
+        <h3 style="margin-top:22px">Способ оплаты</h3>
+        <div class="row">
+          <button class="btn ${f.pay==='cash'?'primary':''}" style="flex:1;padding:18px" onclick="S.flow.pay='cash';saleStep()">Наличные</button>
+          <button class="btn ${f.pay==='card'?'primary':''}" style="flex:1;padding:18px" onclick="S.flow.pay='card';saleStep()">Безнал</button>
+        </div>
+        <div class="err" id="sErr" style="color:var(--danger);display:none;margin:12px 0"></div>
+        <div class="row" style="margin-top:16px"><button class="btn" onclick="S.flow.step=1;saleStep()">Назад</button>
+          <button class="btn primary" style="flex:1" ${f.pay?'':'disabled'} onclick="saleSubmit()">Провести продажу</button></div>
+      </div></div>`);
+  }
+}
+function saleFind(){
+  const f=S.flow;f.phone=$('#sPhone').value.trim();const c=findByPhone(f.phone);
+  if(c){f.customer=c;f.anon=false;f.step=1;saleStep();return;}
+  $('#sFind').innerHTML=`<div class="card" style="background:var(--danger-soft);border-color:#fecaca;margin-bottom:14px">
+    <b style="color:var(--danger)">Покупатель не найден</b>
+    <p class="muted" style="margin:6px 0 12px;font-size:13.5px">Можно зарегистрировать (процесс 4.1) или продать без регистрации — бэкенд подставит служебного контрагента «Джон Доу».</p>
+    <div class="row"><button class="btn primary sm" onclick="renderReg('${esc(f.phone)}')">Зарегистрировать</button>
+      <button class="btn sm" onclick="saleAnon()">Продать без регистрации</button></div></div>`;
+}
+function saleAnon(){S.flow.anon=true;S.flow.customer={fio:'Джон Доу',phone:'—',id:'c6'};S.flow.step=1;saleStep();toast('Продажа без регистрации: контрагент «Джон Доу»');}
+function stockList(){
+  const q=($('#sBar')&&$('#sBar').value||'').toLowerCase();
+  $('#stockList').innerHTML=STOCK.filter(p=>!q||(p.name+p.sku).toLowerCase().includes(q)).map(p=>`
+    <div class="it" onclick="addCart('${p.sku}')"><div class="av">${p.device?'▣':'▤'}</div>
+      <div style="flex:1"><b>${esc(p.name)}</b><div class="muted" style="font-size:12.5px">${p.sku} · остаток ${p.qty} шт${p.dm?' · Data Matrix':''}</div></div>
+      <b>${fmt(p.price)} ₸</b></div>`).join('');
+}
+function addCart(sku){
+  const p=STOCK.find(x=>x.sku===sku),it=S.cart.find(i=>i.sku===sku);
+  if(it){if(it.n>=p.qty){toast('Недостаточно остатка на складе','err');return;}it.n++;it.codes.push('');}
+  else S.cart.push({...p,n:1,codes:['']});
+  saleStep();
+}
+function cartQty(sku,d){
+  const it=S.cart.find(i=>i.sku===sku);
+  if(d>0){const p=STOCK.find(x=>x.sku===sku);if(it.n>=p.qty){toast('Недостаточно остатка на складе','err');return;}it.n++;it.codes.push('');}
+  else {it.n--;it.codes.pop();if(it.n<=0)S.cart=S.cart.filter(i=>i.sku!==sku);}
+  saleStep();
+}
+function cartList(){
+  $('#cartList').innerHTML=S.cart.length?S.cart.map(i=>`<div class="row" style="padding:9px 0;border-bottom:1px solid #f1f5f9">
+    <div style="flex:1"><b style="font-size:13.5px">${esc(i.name)}</b><div class="muted" style="font-size:12px">${fmt(i.price)} ₸ × ${i.n}</div></div>
+    <button class="btn sm" onclick="cartQty('${i.sku}',-1)">−</button><button class="btn sm" onclick="cartQty('${i.sku}',1)">+</button></div>`).join('')
+    :'<p class="muted" style="font-size:13.5px">Добавьте товары из каталога</p>';
+}
+function dmBlock(){
+  const dmItems=S.cart.filter(i=>i.dm);
+  if(!dmItems.length){$('#dmBlock').innerHTML='';return;}
+  $('#dmBlock').innerHTML=`<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+    <h3 style="font-size:13.5px">Data Matrix проданных единиц</h3>
+    <p class="muted" style="font-size:12.5px;margin:-6px 0 10px">Отмечается каждая конкретная единица: код с корпуса устройства и код с пачки стиков.</p>
+    ${dmItems.map(i=>i.codes.map((c,k)=>`<div class="row" style="margin-bottom:7px">
+      <span class="muted" style="font-size:12px;min-width:150px">${esc(i.name.split(' (')[0])} #${k+1}</span>
+      <input value="${esc(c)}" onchange="setCode('${i.sku}',${k},this.value)" placeholder="${i.device?'DM-FLX-____':'DM-FAI-____'}"
+        style="flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13.5px;text-transform:uppercase">
+      <button class="btn sm" onclick="scanCode('${i.sku}',${k})">Скан</button></div>`).join('')).join('')}
+    <div class="muted" style="font-size:12px">Демо: устройства DM-FLX-1001 / 2201 (свободны), DM-FLX-8842 (занято); стики DM-FAI-3001…3008</div></div>`;
+}
+function setCode(sku,k,v){const it=S.cart.find(i=>i.sku===sku);it.codes[k]=v.trim().toUpperCase();}
+function usedCodes(){return S.cart.flatMap(i=>i.codes).filter(Boolean);}
+function scanCode(sku,k){
+  const it=S.cart.find(i=>i.sku===sku), used=usedCodes();
+  const free=it.device? Object.keys(DEVICE_CODES).find(c=>!DEVICE_CODES[c]&&!used.includes(c))
+                      : STICK_CODES.find(c=>!USED_STICKS.includes(c)&&!used.includes(c));
+  if(!free){toast('Свободных демо-кодов не осталось','err');return;}
+  it.codes[k]=free;saleStep();toast('Отсканирован '+free);
+}
+function applyPromoCode(){
+  const code=($('#sPromo').value||'').trim().toUpperCase();
+  if(!code){S.flow.promoErr='Введите промокод';saleStep();return;}
+  if(!(code in PROMOS)){S.flow.promoErr='❌ Промокод не найден';saleStep();return;}
+  S.flow.promo={code,points:PROMOS[code]};S.flow.promoErr='';saleStep();
+  toast('✅ Промокод принят: +'+PROMOS[code]+' баллов в личный кабинет (сумма чека не меняется)','ok');
+}
+function saleSubmit(){
+  const f=S.flow,e=$('#sErr'),err=t=>{e.style.display='block';e.innerHTML=t;};
+  const codes=[];
+  for(const i of S.cart){
+    if(!i.dm)continue;
+    for(let k=0;k<i.n;k++){
+      const c=i.codes[k];
+      if(!c)return err('❌ Укажите Data Matrix: '+esc(i.name.split(' (')[0])+' #'+(k+1));
+      if(codes.includes(c))return err('❌ Код '+esc(c)+' указан дважды');
+      if(i.device){
+        if(!(c in DEVICE_CODES))return err('❌ Data Matrix '+esc(c)+' не найден в системе');
+        if(DEVICE_CODES[c])return err('❌ Устройство '+esc(c)+' уже привязано к другому покупателю');
+      } else {
+        if(!STICK_CODES.includes(c))return err('❌ Data Matrix '+esc(c)+' не найден среди стиков');
+        if(USED_STICKS.includes(c))return err('❌ Пачка '+esc(c)+' уже продана');
+      }
+      codes.push(c);
+    }
+  }
+  const total=cartTotal(),rule=promoRule(),pay=total-Math.round(total*rule.rate);
+  completeSale(pay,rule,f.pay==='cash'?'Наличные':'Безнал');
+}
+function completeSale(sum,rule,method){
+  const f=S.flow, devices=[], sticks=[];
+  S.cart.forEach(i=>{
+    const p=STOCK.find(x=>x.sku===i.sku);p.qty-=i.n;
+    if(i.dm)i.codes.slice(0,i.n).forEach(c=>{ if(i.device){DEVICE_CODES[c]=f.customer.id;devices.push(c);} else {USED_STICKS.push(c);sticks.push(c);} });
+  });
+  if(devices.length&&!f.anon){const c=CUSTOMERS.find(x=>x.id===f.customer.id);if(c)c.device=devices[0];}
+  const id=String(4414+SALES.length);
+  SALES.push({id,ts:new Date().toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    customer:f.anon?'Джон Доу':f.customer.fio,sum,pay:method,collected:false});
+  finishScreen('Продажа завершена',
+    `Документ реализации №${id} · <b>${fmt(sum)} ₸</b> · ${esc(method)}<br>
+     Покупатель: <b>${f.anon?'Джон Доу (без регистрации)':esc(f.customer.fio)}</b><br>
+     ${rule.rate?'Применена автоматически: '+esc(rule.label)+'<br>':''}
+     ${f.promo?'Промокод <b>'+esc(f.promo.code)+'</b> — начислено '+f.promo.points+' баллов в личный кабинет (на сумму чека не влияет)<br>':''}
+     ${devices.length?'✅ Устройства привязаны к покупателю: <span class="mono">'+devices.map(esc).join(', ')+'</span><br>':''}
+     ${sticks.length?'Стики (Data Matrix): <span class="mono">'+sticks.map(esc).join(', ')+'</span><br>':''}
+     <span class="muted">Списано со склада: ${esc(ME.wh)} · точка: ${esc(S.loc.name)}</span>`,'✅',
+    [{t:'Guided Trail',fn:"renderTrail('"+(f.anon?'':f.customer.phone)+"')"},{t:'Новая продажа',fn:"renderSale()"}]);
+}
+
+/* ================= ОЧЕРЕДЬ СИНХРОНИЗАЦИИ (офлайн) ================= */
+function gps(){return {lat:(43.20+Math.random()*0.08).toFixed(5),lng:(76.87+Math.random()*0.1).toFixed(5)};}
+function updBadge(){const b=$('#syncBadge');if(b)b.textContent=S.queue.filter(q=>q.status!=='synced').length;}
+function openSync(){
+  const rows=S.queue.length? S.queue.map(q=>`<div class="it" style="cursor:default">
+      <div class="av">${q.status==='synced'?'✓':'⏱'}</div>
+      <div style="flex:1"><b>${esc(q.title)}</b><div class="muted" style="font-size:12.5px">${esc(q.type)} · ${q.ts.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · GPS ${q.gps.lat}, ${q.gps.lng} · ${esc(q.loc)}</div></div>
+      <span class="tag ${q.status==='synced'?'ok':'amber'}">${q.status==='synced'?'synced':'pending_sync'}</span></div>`).join('')
+    : '<p class="muted">Очередь пуста. Переключитесь в офлайн и выполните регистрацию покупателя или Guided Trail — записи появятся здесь. Продажа офлайн недоступна.</p>';
+  modal('Очередь синхронизации',`<div class="list">${rows}</div>`,
+    `<button class="btn" onclick="closeModal()">Закрыть</button>
+     <button class="btn primary" ${S.online?'':'disabled'} onclick="syncAll()">${S.online?'Синхронизировать':'Нет интернета'}</button>`);
+}
+function syncAll(){
+  let ok=0;
+  S.queue.filter(q=>q.status==='pending').forEach(q=>{
+    if(q.type==='Регистрация покупателя'){const d=q.payload;
+      CUSTOMERS.push({id:uid('c'),fio:d.fio,phone:d.phone,iin:d.citizen==='kz'?d.docnum:'',passport:d.citizen==='kz'?'':d.docnum,
+        birth:d.birth,doc:d.doc,regType:'seller',regName:ME.fio,device:''});}
+    q.status='synced';ok++;
+  });
+  updBadge();openSync();toast('Синхронизация: '+ok+' операций отправлено','ok');
+}
+
+/* ================= 3.2 ИНКАССАЦИЯ ================= */
+function renderCash(){
+  const pend=SALES.filter(s=>!s.collected&&s.pay==='Наличные');
+  const sum=pend.reduce((a,b)=>a+b.sum,0);
+  setBody(head('Инкассация','Процесс 3.2 · внесение наличных на счёт компании')+`<div class="hint" style="background:var(--warn-soft);border-color:#f5dcb3;color:#8a5a08">⚠️ Процесс ещё прорабатывается — итоговая логика не утверждена. Экран показан как черновик юзерфлоу.</div>
+  <div class="grid" style="grid-template-columns:1.3fr .7fr">
+    <div class="card"><h3>Продажи, не сданные в кассу</h3>
+      <table><thead><tr><th>Документ</th><th>Дата</th><th>Покупатель</th><th>Способ</th><th style="text-align:right">Сумма</th></tr></thead>
+      <tbody>${pend.map(s=>`<tr><td class="mono">№${s.id}</td><td>${s.ts}</td><td>${esc(s.customer)}</td><td><span class="tag">${s.pay}</span></td>
+        <td style="text-align:right"><b>${fmt(s.sum)} ₸</b></td></tr>`).join('')||'<tr><td colspan="5" class="muted">Всё инкассировано</td></tr>'}</tbody></table></div>
+    <div class="card"><h3>Отметить инкассацию</h3>
+      <div class="row" style="margin-bottom:14px"><span class="muted">Сумма к инкассации</span><span class="spacer"></span><b style="font-size:22px">${fmt(sum)} ₸</b></div>
+      <div class="field"><label>Дата внесения</label><input type="date" id="cDate" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="field"><label>Комментарий</label><input id="cComment" placeholder="например: внесено в кассу банка"></div>
+      <button class="btn primary block" ${sum?'':'disabled'} onclick="doCash(${sum})">Отметить инкассацию</button>
+    </div></div>`);
+}
+function doCash(sum){
+  SALES.forEach(s=>{if(s.pay==='Наличные')s.collected=true;});
+  finishScreen('Инкассация отмечена','Документ «Инкассация» создан в 1С<br>Сумма: <b>'+fmt(sum)+' ₸</b><br>'+esc($('#cComment').value||''),'✅',[{t:'К инкассации',fn:"renderPage('cash')"}]);
+}
+
+/* ================= 3.3 ЗАЯВКА НА ПЕРЕМЕЩЕНИЕ ================= */
+const MSTAT={pending:['Ожидает директора','amber'],director:['Одобрена директором, ждёт складовщика','blue'],approved:['Одобрена, товар перемещён','ok'],rejected:['Отклонена','red']};
+function renderMove(){
+  S.moveCart=S.moveCart||{};
+  setBody(head('Заявка на перемещение','Процесс 3.3 · основной склад → склад продавца')+`<div class="hint" style="background:var(--warn-soft);border-color:#f5dcb3;color:#8a5a08">⚠️ Процесс ещё прорабатывается — итоговая логика не утверждена. Экран показан как черновик юзерфлоу.</div>
+  <div class="grid" style="grid-template-columns:1.2fr .8fr">
+    <div class="card"><h3>Каталог основного склада</h3>
+      <div class="list">${MAIN_STOCK.map(p=>`<div class="it" style="cursor:default"><div class="av">▤</div>
+        <div style="flex:1"><b>${esc(p.name)}</b><div class="muted" style="font-size:12.5px">${p.sku} · доступно ${p.qty} шт</div></div>
+        <button class="btn sm" onclick="mv('${p.sku}',-1)">−</button><b style="min-width:28px;text-align:center" id="mv-${p.sku}">${S.moveCart[p.sku]||0}</b>
+        <button class="btn sm" onclick="mv('${p.sku}',1)">+</button></div>`).join('')}</div>
+      <button class="btn primary block" style="margin-top:12px" onclick="createMove()">Создать заявку</button>
+      <p class="muted" style="font-size:12.5px">Маршрут согласования: директор магазина / супервайзер → складовщик → перемещение в 1С.</p></div>
+    <div class="card"><h3>Мои заявки</h3>
+      ${MOVES.slice().reverse().map(m=>`<div style="padding:11px 0;border-bottom:1px solid #f1f5f9">
+        <div class="row"><b class="mono">${m.id}</b><span class="spacer"></span><span class="tag ${MSTAT[m.status][1]}">${MSTAT[m.status][0]}</span></div>
+        <div class="muted" style="font-size:13px;margin-top:4px">${m.ts} · ${esc(m.items)}</div></div>`).join('')}</div></div>`);
+}
+function mv(sku,d){S.moveCart[sku]=Math.max(0,(S.moveCart[sku]||0)+d);$('#mv-'+sku).textContent=S.moveCart[sku];}
+function createMove(){
+  const items=Object.entries(S.moveCart).filter(([,n])=>n>0);
+  if(!items.length){toast('Добавьте товары в заявку','err');return;}
+  const txt=items.map(([sku,n])=>MAIN_STOCK.find(p=>p.sku===sku).name.split(' (')[0]+' ×'+n).join(', ');
+  const id='МП-'+String(93+MOVES.length).padStart(4,'0');
+  MOVES.push({id,ts:new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}),items:txt,status:'pending'});
+  S.moveCart={};
+  finishScreen('Заявка создана','Заявка <b>'+id+'</b>: '+esc(txt)+'<br>Ожидает одобрения директора магазина / супервайзера в 1С','✅',[{t:'К заявкам',fn:"renderPage('move')"}]);
+}
+/* ================= 2.3 GUIDED TRAIL ================= */
+function renderTrail(prefill){
+  S.flow={step:0,phone:prefill||'',customer:null,type:null,presLike:null,sticks:[],result:null,reasons:[],other:'',
+          profiling:null,gift:null,activities:{}};
+  trailStep();
+}
+function trailStep(){
+  const f=S.flow, ST=['Покупатель','Тип','Презентация','Результат','Доп. блоки'];
+  if(f.step===0){
+    setBody(head('Guided Trail','Процесс 3.5 · презентация')+steps(ST,0)+`
+    <div class="card" style="max-width:620px">
+      <div class="field"><label>Номер телефона покупателя *</label><input id="tPhone" value="${esc(f.phone)}"></div>
+      <div id="tFind"></div>
+      <button class="btn primary block" onclick="trailFind()">Найти</button>
+      <div class="muted" style="font-size:12.5px;margin-top:10px">Демо: +7 701 234 56 78 · +7 707 111 22 33</div>
+    </div>`);
+  } else if(f.step===1){
+    setBody(head('Guided Trail','Покупатель: '+esc(f.customer.fio))+steps(ST,1)+`
+    <div class="card" style="max-width:660px"><h3>Выберите тип Guided Trail</h3>
+      <div class="tiles" style="grid-template-columns:1fr 1fr">
+        <div class="tile" onclick="S.flow.type='technical';S.flow.step=2;trailStep()"><div class="ic">⚙</div><b>Технический</b><p>Презентация (лайк) → результат → причины отказа</p></div>
+        <div class="tile" onclick="S.flow.type='full';S.flow.step=2;trailStep()"><div class="ic">★</div><b>Полный</b><p>Презентация → дегустация стиков → результат → причины отказа</p></div>
+      </div></div>`);
+  } else if(f.step===2){
+    setBody(head('Guided Trail',(f.type==='full'?'Полный':'Технический')+' · '+esc(f.customer.fio))+steps(ST,2)+`
+    <div class="card" style="max-width:660px">
+      <h3>Презентация проведена?</h3>
+      <div class="like">${likeBtns('presLike')}</div>
+      <p class="muted" style="font-size:12.5px">Лайк можно отжать — значение вернётся в null.</p>
+      ${f.type==='full'?`<h3 style="margin-top:22px">Какие стики были использованы? (дегустация)</h3>
+        ${CFG.sticks.map(s=>`<div class="chk ${f.sticks.includes(s)?'on':''}" onclick="toggleArr('sticks','${s}');trailStep()"><input type="checkbox" ${f.sticks.includes(s)?'checked':''}><span>${s}</span></div>`).join('')}`:''}
+      <div class="row" style="margin-top:18px"><button class="btn" onclick="S.flow.step=1;trailStep()">Назад</button>
+        <button class="btn primary" style="flex:1" onclick="S.flow.step=3;trailStep()">Далее</button></div>
+    </div>`);
+  } else if(f.step===3){
+    setBody(head('Guided Trail','Результат · '+esc(f.customer.fio))+steps(ST,3)+`
+    <div class="card" style="max-width:660px">
+      <h3>Чем завершился Guided Trail?</h3>
+      <div class="row">
+        <button class="btn ${f.result==='sale'?'primary':''}" style="flex:1;padding:20px" onclick="S.flow.result='sale';trailStep()">Продажа</button>
+        <button class="btn ${f.result==='rejection'?'dark':''}" style="flex:1;padding:20px" onclick="S.flow.result='rejection';trailStep()">Отказ</button>
+      </div>
+      ${f.result==='rejection'?`<h3 style="margin-top:22px">Причины отказа</h3>
+        ${CFG.rejections.map(r=>`<div class="chk ${f.reasons.includes(r)?'on':''}" onclick="toggleArr('reasons','${r}');trailStep()"><input type="checkbox" ${f.reasons.includes(r)?'checked':''}><span>${r}</span></div>`).join('')}
+        ${f.reasons.includes('Другое')?`<div class="field"><label>Комментарий</label><input id="tOther" value="${esc(f.other)}" onchange="S.flow.other=this.value"></div>`:''}`:''}
+      <div class="row" style="margin-top:18px"><button class="btn" onclick="S.flow.step=2;trailStep()">Назад</button>
+        <button class="btn primary" style="flex:1" ${f.result?'':'disabled'} onclick="S.flow.step=4;trailStep()">Далее</button></div>
+    </div>`);
+  } else {
+    const doneQ=f.profiling?'<span class="tag ok">заполнено</span>':'<span class="tag">не заполнено</span>';
+    const actCount=Object.keys(f.activities).length;
+    setBody(head('Guided Trail','Дополнительные блоки · '+esc(f.customer.fio))+steps(ST,4)+`
+    <div class="grid" style="grid-template-columns:1fr 1fr;max-width:900px">
+      <div class="card"><h3>Профилирование ${doneQ}</h3><p class="muted" style="margin-top:-6px;font-size:13px">Опросник, настраивается в админке</p>
+        <button class="btn block" onclick="openProfiling()">Открыть профилирование</button></div>
+      <div class="card"><h3>Гифт</h3><p class="muted" style="margin-top:-6px;font-size:13px">Гифт выдан?</p><div class="like">${likeBtns('gift')}</div></div>
+      <div class="card"><h3>Другие активности ${actCount?'<span class="tag ok">'+actCount+'</span>':''}</h3>
+        <p class="muted" style="margin-top:-6px;font-size:13px">Список активностей из админки</p>
+        <button class="btn block" onclick="openActivities()">Открыть активности</button></div>
+      <div class="card" style="background:var(--info-soft);border-color:#cfdcff">
+        <h3>Сводка</h3>
+        <div style="font-size:13.5px;line-height:1.9">
+          Тип: <b>${f.type==='full'?'Полный':'Технический'}</b><br>
+          Презентация: <b>${f.presLike===null?'—':f.presLike?'👍':'👎'}</b><br>
+          ${f.type==='full'?'Стики: <b>'+(f.sticks.join(', ')||'—')+'</b><br>':''}
+          Результат: <b>${f.result==='sale'?'Продажа':'Отказ'}</b><br>
+          ${f.result==='rejection'?'Причины: <b>'+(f.reasons.join(', ')||'—')+'</b><br>':''}
+          Гифт: <b>${f.gift===null?'—':f.gift?'👍':'👎'}</b>
+        </div>
+        <button class="btn block primary" style="margin-top:16px" onclick="trailSubmit()">Завершить Guided Trail</button>
+      </div>
+    </div>`);
+  }
+}
+function likeBtns(key){const v=S.flow[key];
+  return `<button class="${v===true?'on':''}" onclick="setLike('${key}',true)">👍</button><button class="${v===false?'on':''}" onclick="setLike('${key}',false)">👎</button>`;}
+function setLike(key,val){S.flow[key]=(S.flow[key]===val)?null:val;trailStep();}
+function toggleArr(key,val){const a=S.flow[key];const i=a.indexOf(val);i<0?a.push(val):a.splice(i,1);}
+function trailFind(){
+  const f=S.flow;f.phone=$('#tPhone').value.trim();const c=findByPhone(f.phone);
+  if(!c){$('#tFind').innerHTML=`<div class="card" style="background:var(--danger-soft);border-color:#fecaca;margin-bottom:14px">
+    <b style="color:var(--danger)">❌ Покупатель не найден</b><p class="muted" style="margin:6px 0 12px;font-size:13.5px">Сначала зарегистрируйте (процесс 4.1).</p>
+    <button class="btn primary sm" onclick="renderReg('${esc(f.phone)}')">Зарегистрировать</button></div>`;return;}
+  f.customer=c;f.step=1;trailStep();
+}
+function openProfiling(){
+  const ans=S.flow.profiling||{};
+  modal('Профилирование',CFG.questions.map((q,qi)=>`<div style="margin-bottom:16px"><b>${esc(q.q)}</b>
+    <div style="margin-top:8px">${q.a.map(a=>`<div class="chk ${(ans[qi]||[]).includes(a)?'on':''}" onclick="pfToggle(${qi},'${esc(a)}',this)"><input type="checkbox" ${(ans[qi]||[]).includes(a)?'checked':''}><span>${esc(a)}</span></div>`).join('')}</div></div>`).join(''),
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="pfSave()">Сохранить</button>`);
+  window._pf=JSON.parse(JSON.stringify(ans));
+}
+function pfToggle(qi,a,el){const pf=window._pf;pf[qi]=pf[qi]||[];const i=pf[qi].indexOf(a);i<0?pf[qi].push(a):pf[qi].splice(i,1);
+  el.classList.toggle('on');el.querySelector('input').checked=pf[qi].includes(a);}
+function pfSave(){S.flow.profiling=window._pf;closeModal();toast('Профилирование сохранено','ok');trailStep();}
+function openActivities(){
+  modal('Другие цикловые активности',CFG.activities.map((a,i)=>{const v=S.flow.activities[a.name];
+    return `<div class="card" style="margin-bottom:12px"><div class="row"><b style="flex:1">${esc(a.name)}</b>
+      <button class="btn sm ${v===true?'primary':''}" onclick="actLike('${esc(a.name)}',true)">👍</button>
+      <button class="btn sm ${v===false?'dark':''}" onclick="actLike('${esc(a.name)}',false)">👎</button></div>
+      ${a.type==='like_form'?'<div class="muted" style="font-size:12.5px;margin-top:8px">+ короткий опросник (настраивается в админке)</div>':''}</div>`}).join(''),
+    `<button class="btn primary" onclick="closeModal();trailStep()">Готово</button>`);
+}
+function actLike(name,v){S.flow.activities[name]=(S.flow.activities[name]===v)?undefined:v;
+  if(S.flow.activities[name]===undefined)delete S.flow.activities[name];openActivities();}
+function trailSubmit(){
+  const f=S.flow;
+  const payload={customer_id:f.customer.id,seller_id:ME.id,location_id:S.loc.id,trail_type:f.type,presentation_like:f.presLike,
+    sticks_used:f.sticks,result:f.result,rejection_reasons:f.reasons,profiling:f.profiling,gift_given:f.gift,activities:f.activities};
+  if(!S.online){
+    const g=gps();
+    S.queue.push({id:uid('q'),type:'Guided Trail',title:f.customer.fio+' · '+(f.type==='full'?'полный':'технический'),status:'pending',ts:new Date(),gps:g,loc:S.loc.name,payload});
+    updBadge();
+    finishScreen('Guided Trail сохранён офлайн',`<b>${esc(f.customer.fio)}</b> · ${f.type==='full'?'полный':'технический'}<br>
+      GPS: <span class="mono">${g.lat}, ${g.lng}</span><br><span class="muted">Статус pending_sync — уйдёт на бэкенд при появлении интернета</span>`,'⏱');
+    return;
+  }
+  finishScreen('Guided Trail завершён',`<b>${esc(f.customer.fio)}</b> · ${f.type==='full'?'полный':'технический'} · ${f.result==='sale'?'продажа':'отказ'}
+    <div class="mono" style="text-align:left;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:16px;font-size:11.5px;white-space:pre-wrap">${esc(JSON.stringify(payload,null,1))}</div>`,'✅');
+}
+
+
+/* ================= 4.1 РЕГИСТРАЦИЯ ПОКУПАТЕЛЯ ================= */
+function renderReg(prefill){S.flow={step:0,citizen:'kz',data:{phone:prefill||''},otp:''};regStep();}
+function regStep(){
+  const f=S.flow,ST=['Тип гражданства','Данные покупателя',S.online?'Подтверждение (OTP)':'Сохранение офлайн'];
+  if(f.step===0){
+    setBody(head('Регистрация покупателя','Процесс 4.1 · универсальный')+steps(ST,0)+`
+    <div class="card" style="max-width:640px"><h3>Кто регистрируется?</h3>
+      <div class="chk ${f.citizen==='kz'?'on':''}" onclick="S.flow.citizen='kz';regStep()"><input type="radio" ${f.citizen==='kz'?'checked':''}><div><b>Гражданин РК</b><div class="muted" style="font-size:13px">Обязательное поле — ИИН</div></div></div>
+      <div class="chk ${f.citizen==='for'?'on':''}" onclick="S.flow.citizen='for';regStep()"><input type="radio" ${f.citizen==='for'?'checked':''}><div><b>Не гражданин РК</b><div class="muted" style="font-size:13px">Обязательное поле — номер паспорта</div></div></div>
+      <button class="btn primary block" style="margin-top:14px" onclick="S.flow.step=1;regStep()">Далее</button></div>`);
+  } else if(f.step===1){
+    const kz=f.citizen==='kz';
+    setBody(head('Регистрация покупателя','Процесс 4.1 · '+(kz?'гражданин РК':'не гражданин РК'))+steps(ST,1)+`
+    <div class="card" style="max-width:720px">
+      ${S.online?'<div class="hint">После сохранения покупателю уйдёт SMS с кодом. Ввод кода = согласие с пользовательским соглашением.</div>'
+                :'<div class="hint">Офлайн-режим: данные с бумажной формы. Запись уйдёт в локальную БД со статусом pending_sync и будет проверена при появлении интернета.</div>'}
+      <div class="row" style="gap:14px"><div class="field" style="flex:1"><label>ФИО *</label><input id="rFio" value="${esc(f.data.fio||'')}"></div>
+        <div class="field" style="flex:1"><label>Телефон *</label><input id="rPhone" value="${esc(f.data.phone||'')}"></div></div>
+      <div class="row" style="gap:14px"><div class="field" style="flex:1"><label>${kz?'ИИН *':'Номер паспорта *'}</label><input id="rDocNum" value="${esc(f.data.docnum||'')}" placeholder="${kz?'12 цифр':'например N4412897'}"></div>
+        <div class="field" style="flex:1"><label>Дата рождения</label><input type="date" id="rBirth" value="${esc(f.data.birth||'')}"></div></div>
+      <div class="field"><label>Документ</label><select id="rDoc">${(kz?['Удостоверение личности','Паспорт РК']:['Паспорт (иностранный)','Вид на жительство']).map(d=>`<option>${d}</option>`).join('')}</select></div>
+      <div class="err" id="rErr" style="color:var(--danger);display:none;margin-bottom:10px"></div>
+      <div class="muted" style="font-size:12.5px;margin-bottom:14px">Будет сохранено: <span class="mono">registered_by_type=seller, registered_by_id=${ME.id}, location_id=${S.loc.id}</span></div>
+      <div class="row"><button class="btn" onclick="S.flow.step=0;regStep()">Назад</button><button class="btn primary" style="flex:1" onclick="regSubmit()">${S.online?'Отправить код по SMS':'Сохранить офлайн'}</button></div>
+    </div>`);
+  } else {
+    setBody(head('Подтверждение номера','Процесс 4.1 · OTP')+steps(ST,2)+`
+    <div class="card" style="max-width:520px;text-align:center"><p>Код отправлен на <b>${esc(f.data.phone)}</b></p>
+      <div class="otpbox">${[0,1,2,3].map(i=>`<div class="${i===f.otp.length?'f':''}">${f.otp[i]||''}</div>`).join('')}</div>
+      <p class="muted" style="font-size:13px">Демо-код: <b>1234</b></p>
+      <div class="row" style="justify-content:center;margin-top:10px"><div class="kbd">
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="otpKey('${n}')">${n}</button>`).join('')}
+        <button onclick="otpKey('back')">⌫</button><button onclick="otpKey('0')">0</button><button onclick="otpKey('clr')">C</button></div></div>
+      <div class="err" id="oErr" style="color:var(--danger);display:none;margin-top:12px"></div></div>`);
+  }
+}
+function regSubmit(){
+  const f=S.flow,kz=f.citizen==='kz',e=$('#rErr');
+  f.data={fio:$('#rFio').value.trim(),phone:$('#rPhone').value.trim(),docnum:$('#rDocNum').value.trim(),birth:$('#rBirth').value,doc:$('#rDoc').value};
+  if(!f.data.fio||!f.data.phone){e.style.display='block';e.textContent='❌ Заполните ФИО и телефон';return;}
+  if(kz&&digits(f.data.docnum).length!==12){e.style.display='block';e.textContent='❌ ИИН должен содержать 12 цифр';return;}
+  if(!kz&&!f.data.docnum){e.style.display='block';e.textContent='❌ Укажите номер паспорта';return;}
+  if(findByPhone(f.data.phone)){e.style.display='block';e.textContent='❌ Покупатель с таким телефоном уже зарегистрирован';return;}
+  if(!S.online){
+    const g=gps();
+    S.queue.push({id:uid('q'),type:'Регистрация покупателя',title:f.data.fio,status:'pending',ts:new Date(),gps:g,loc:S.loc.name,payload:{...f.data,citizen:f.citizen}});
+    updBadge();
+    finishScreen('Сохранено офлайн','Запись покупателя <b>'+esc(f.data.fio)+'</b> сохранена в локальную БД<br>Статус: <span class="mono">pending_sync</span> · GPS '+g.lat+', '+g.lng,'⏱');
+    return;
+  }
+  f.step=2;f.otp='';regStep();
+}
+function otpKey(k){
+  const f=S.flow;
+  if(k==='back')f.otp=f.otp.slice(0,-1);else if(k==='clr')f.otp='';else if(f.otp.length<4)f.otp+=k;
+  regStep();
+  if(f.otp.length===4){
+    if(f.otp!=='1234'){setTimeout(()=>{$('#oErr').style.display='block';$('#oErr').textContent='❌ Неверный код, попробуйте ещё раз';f.otp='';},250);return;}
+    const c={id:uid('c'),fio:f.data.fio,phone:f.data.phone,iin:f.citizen==='kz'?f.data.docnum:'',passport:f.citizen==='kz'?'':f.data.docnum,
+      birth:f.data.birth,doc:f.data.doc,regType:'seller',regName:ME.fio,device:''};
+    CUSTOMERS.push(c);
+    setTimeout(()=>finishScreen('Покупатель зарегистрирован',`<b>${esc(c.fio)}</b><br>${c.iin?'ИИН '+esc(c.iin):'Паспорт '+esc(c.passport)}<br>
+      <span class="muted">registered_by: мобильный продавец · ${esc(ME.fio)}</span>`,'✅',
+      [{t:'Перейти к продаже',fn:"renderSale('"+c.phone+"')"},{t:'Guided Trail',fn:"renderTrail('"+c.phone+"')"}]),300);
+  }
+}
+
+/* ================= 3.4 ПОКУПАТЕЛИ ================= */
+const REGTAG={hostess:['Хостес','blue'],seller:['Мобильный продавец','amber'],retail:['Розница','']};
+function renderCust(){
+  setBody(head('Покупатели','Процесс 3.4 · все пользователи, редактирование без ограничений')+`
+  <div class="hint">Мобильный продавец видит всех покупателей и признак регистрации: кто зарегистрировал (хостес / мобильный / розница) и конкретное имя пользователя.</div>
+  <div class="field" style="max-width:420px"><input id="cq" placeholder="Поиск по ФИО, телефону, ИИН, паспорту" oninput="custList()"></div>
+  <div id="custList" class="list"></div>`);
+  custList();
+}
+function custList(){
+  const q=($('#cq').value||'').toLowerCase();
+  const list=CUSTOMERS.filter(c=>!q||(c.fio+c.phone+c.iin+c.passport).toLowerCase().includes(q));
+  $('#custList').innerHTML=list.map(c=>{const r=REGTAG[c.regType]||['—',''];
+    return `<div class="it" onclick="custCard('${c.id}')"><div class="av">${initials(c.fio)}</div>
+      <div style="flex:1"><b>${esc(c.fio)}</b><div class="muted" style="font-size:13px">${esc(c.phone)} · ${c.iin?'ИИН '+esc(c.iin):'паспорт '+esc(c.passport)}</div></div>
+      ${c.device?`<span class="tag ok mono">${esc(c.device)}</span>`:''}
+      <span class="tag ${r[1]}">${r[0]}</span><span class="muted" style="font-size:12.5px">${esc(c.regName||'')}</span></div>`}).join('')||'<p class="muted">Ничего не найдено</p>';
+}
+function custCard(id){
+  const c=CUSTOMERS.find(x=>x.id===id),r=REGTAG[c.regType]||['—',''];
+  modal('Профиль покупателя',`
+    <div class="row" style="margin-bottom:14px"><div class="av" style="width:46px;height:46px;border-radius:13px;background:#eef2f7;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted)">${initials(c.fio)}</div>
+      <div><b style="font-size:17px">${esc(c.fio)}</b><div class="muted" style="font-size:13px">Зарегистрирован: ${r[0]} · ${esc(c.regName||'')}</div></div></div>
+    <table>
+      <tr><td class="muted">Телефон</td><td class="mono">${esc(c.phone)}</td></tr>
+      <tr><td class="muted">${c.iin?'ИИН':'Номер паспорта'}</td><td class="mono">${esc(c.iin||c.passport)}</td></tr>
+      <tr><td class="muted">Дата рождения</td><td>${esc(c.birth||'—')}</td></tr>
+      <tr><td class="muted">Документ</td><td>${esc(c.doc)}</td></tr>
+      <tr><td class="muted">Устройство</td><td>${c.device?'<span class="tag ok mono">'+esc(c.device)+'</span>':'<span class="muted">не привязано</span>'}</td></tr>
+    </table>
+    <div class="muted" style="font-size:12.5px;margin-top:12px">История операций: продажи, привязки, Guided Trail — в карточке клиента админки.</div>`,
+    `<button class="btn" onclick="closeModal()">Закрыть</button>
+     <button class="btn" onclick="closeModal();renderSale('${esc(c.phone)}')">Продажа</button>
+     <button class="btn primary" onclick="custEdit('${c.id}')">Редактировать</button>`);
+}
+function custEdit(id){
+  const c=CUSTOMERS.find(x=>x.id===id);
+  modal('Редактирование профиля',`
+    <div class="field"><label>ФИО</label><input id="eFio" value="${esc(c.fio)}"></div>
+    <div class="field"><label>Телефон</label><input id="ePhone" value="${esc(c.phone)}"></div>
+    <div class="field"><label>${c.iin?'ИИН':'Номер паспорта'}</label><input id="eDoc" value="${esc(c.iin||c.passport)}"></div>
+    <div class="field"><label>Дата рождения</label><input type="date" id="eBirth" value="${esc(c.birth)}"></div>
+    <div class="field"><label>Документ</label><input id="eDocType" value="${esc(c.doc)}"></div>
+    <p class="muted" style="font-size:12.5px">Изменения логируются: кто, что и когда изменил.</p>`,
+    `<button class="btn" onclick="custCard('${id}')">Отмена</button><button class="btn primary" onclick="custSave('${id}')">Сохранить</button>`);
+}
+function custSave(id){
+  const c=CUSTOMERS.find(x=>x.id===id);
+  c.fio=$('#eFio').value.trim();c.phone=$('#ePhone').value.trim();
+  if(c.iin)c.iin=$('#eDoc').value.trim();else c.passport=$('#eDoc').value.trim();
+  c.birth=$('#eBirth').value;c.doc=$('#eDocType').value;
+  closeModal();custList();toast('✅ Профиль покупателя обновлён','ok');
+}
+updBadge();
+</script>
+</body>
+</html>

@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KT&amp;G — Админка (демо)</title>
+<style>
+:root{
+  --bg:#f4f6f9;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e5e9f0;
+  --accent:#2563eb;--accent-soft:#e8efff;--danger:#dc2626;--danger-soft:#fee2e2;--ok:#12805c;--ok-soft:#e7f6f0;
+  --warn:#b45309;--warn-soft:#fdf3e3;--info:#1d4ed8;--info-soft:#e8eeff;--r:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font:14px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--info)}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:248px;flex:0 0 248px;background:#fff;color:#475569;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;border-right:1px solid var(--line)}
+.brand{padding:20px 18px 14px;border-bottom:1px solid var(--line)}
+.brand b{color:var(--accent);font-size:16px;letter-spacing:.4px}
+.brand span{display:block;font-size:11px;color:#94a3b8;margin-top:3px;text-transform:uppercase;letter-spacing:1px}
+.nav{padding:10px 8px;flex:1;overflow:auto}
+.nav-group{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;padding:14px 12px 6px}
+.nav a{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:9px;color:#475569;text-decoration:none;font-size:13.5px;cursor:pointer}
+.nav a:hover{background:#f1f5f9;color:var(--ink)}
+.nav a.on{background:var(--accent-soft);color:var(--accent);font-weight:650}
+.nav a .ic{width:18px;text-align:center;opacity:.9}
+.sidebar .who{padding:12px 16px;border-top:1px solid var(--line);font-size:12px;color:#94a3b8}
+
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:60px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px;position:sticky;top:0;z-index:5}
+.topbar h1{font-size:17px;margin:0;font-weight:650}
+.topbar .sub{color:var(--muted);font-size:12.5px}
+.spacer{flex:1}
+.content{padding:22px;max-width:1400px;width:100%}
+
+/* PRIMITIVES */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h3{margin:0 0 14px;font-size:14.5px;font-weight:650}
+.card h3 .hint{font-weight:400;color:var(--muted);font-size:12px;margin-left:8px}
+.grid{display:grid;gap:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 14px;cursor:pointer;font-size:13.5px;font-weight:550}
+.btn:hover{background:#f8fafc}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{background:#f1f5f9;color:var(--ink)}
+.btn.sm{padding:5px 10px;font-size:12.5px;border-radius:7px}
+.btn.danger{color:var(--danger);border-color:#fca5a5}
+.btn.danger:hover{background:var(--danger-soft)}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:12.5px;color:var(--muted);font-weight:550}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;outline:none}
+.field input:focus,.field select:focus{border-color:#94a3b8}
+.field .err{color:var(--danger);font-size:12px}
+.checkline{display:flex;gap:8px;align-items:center;margin:6px 0;font-size:13.5px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);font-weight:600;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tbody tr:hover{background:#fafbfd}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;background:#f1f5f9;color:var(--muted);white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.off{background:#f1f5f9;color:#94a3b8}
+.tag.red{background:var(--danger-soft);color:var(--danger)}
+.tag.blue{background:var(--info-soft);color:var(--info)}
+.tag.amber{background:var(--warn-soft);color:var(--warn)}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.kpi .l{font-size:12px;color:var(--muted)}
+.kpi .v{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.5px}
+.kpi .d{font-size:12px;color:var(--ok);margin-top:4px}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.page{display:none}
+.page.on{display:block}
+.empty{padding:32px;text-align:center;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:7px 14px;cursor:pointer;font-size:13px;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+
+/* MAP */
+.mapwrap{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#eaf0f6}
+.mapwrap svg{display:block;width:100%;height:auto}
+.maplegend{position:absolute;left:12px;bottom:12px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:12px;display:flex;flex-direction:column;gap:5px}
+.maplegend i{width:10px;height:10px;border-radius:99px;display:inline-block;margin-right:6px}
+.pin{cursor:pointer}
+.pin:hover circle{stroke-width:3}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal{background:#fff;border-radius:14px;width:520px;max-width:100%;max-height:90vh;overflow:auto;box-shadow:0 24px 60px rgba(2,6,23,.28)}
+.modal .mh{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center}
+.modal .mh h3{margin:0;font-size:16px}
+.modal .mb{padding:18px 20px}
+.modal .mf{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;background:#fbfcfe;border-radius:0 0 14px 14px}
+.modal.wide{width:760px}
+/* TOAST */
+.toasts{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:100}
+.toast{background:#1e293b;color:#fff;padding:11px 15px;border-radius:10px;font-size:13.5px;box-shadow:0 10px 30px rgba(2,6,23,.3);max-width:380px}
+.toast.err{background:var(--danger)}
+.toast.ok{background:var(--ok)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:10px}
+.bars .b{flex:1;background:linear-gradient(180deg,#2563eb,#60a5fa);border-radius:5px 5px 0 0;position:relative;min-height:3px}
+.bars .b span{position:absolute;bottom:-19px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted)}
+.bars .b b{position:absolute;top:-17px;left:0;right:0;text-align:center;font-size:10.5px;color:var(--muted);font-weight:600}
+.flowhint{background:var(--info-soft);border:1px solid #cfdcff;color:#1e3a8a;border-radius:10px;padding:10px 13px;font-size:12.5px;margin-bottom:16px}
+.flowhint b{font-weight:650}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><b>KT&amp;G Admin</b><span>Демо юзерфлоу</span></div>
+    <nav class="nav" id="nav">
+      <div class="nav-group">Обзор</div>
+      <a data-page="dashboard" class="on"><span class="ic">▦</span>Дашборд</a>
+      <a data-page="analytics"><span class="ic">◕</span>Аналитика (1.3)</a>
+      <div class="nav-group">Справочники</div>
+      <a data-page="users"><span class="ic">☰</span>Пользователи (1.1)</a>
+      <a data-page="locations"><span class="ic">⚑</span>Торговые точки (1.2)</a>
+      <a data-page="customers"><span class="ic">☺</span>Покупатели</a>
+      <div class="nav-group">Настройки</div>
+      <a data-page="forms"><span class="ic">✎</span>Опросники и активности</a>
+      <a data-page="logs"><span class="ic">⎘</span>Логи</a>
+    </nav>
+    <div class="who">admin@ktng.kz<br><span style="color:#94a3b8">Администратор</span></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="pgTitle">Дашборд</h1><div class="sub" id="pgSub">Общая картина по демо-данным</div></div>
+      <div class="spacer"></div>
+      <div id="topActions" class="row"></div>
+    </header>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="page on" id="page-dashboard">
+        <div class="grid" style="grid-template-columns:repeat(4,1fr)" id="dashKpi"></div>
+        <div class="grid" style="grid-template-columns:1.4fr 1fr;margin-top:16px">
+          <div class="card"><h3>Операции по дням<span class="hint">все типы</span></h3><div class="bars" id="dashBars"></div><div style="height:14px"></div></div>
+          <div class="card"><h3>Последние действия<span class="hint">лог</span></h3><div id="dashLogs"></div></div>
+        </div>
+        <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+          <div class="card"><h3>Топ торговых точек</h3><div id="dashLoc"></div></div>
+          <div class="card"><h3>Топ пользователей</h3><div id="dashUsers"></div></div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section class="page" id="page-users">
+        <div class="flowhint">Процесс <b>1.1</b>: создание хостес / мобильного продавца. Логин = email, пароль генерируется на бэке и уходит письмом (админ его не видит). Для мобильного продавца обязательны сотрудник 1С и склад. Есть сброс пароля и деактивация.</div>
+        <div class="card">
+          <div class="row" style="margin-bottom:14px">
+            <div class="seg" id="userFilter">
+              <button class="on" data-v="all">Все</button><button data-v="hostess">Хостес</button><button data-v="seller">Мобильные продавцы</button>
+            </div>
+            <input id="userSearch" placeholder="Поиск по email / ФИО" style="border:1px solid var(--line);border-radius:9px;padding:8px 11px;width:260px">
+            <div class="spacer"></div>
+            <button class="btn primary" onclick="openUserForm()">+ Создать пользователя</button>
+          </div>
+          <table><thead><tr><th>Email (логин)</th><th>Тип</th><th>Сотрудник 1С</th><th>Склад</th><th>Точки</th><th>Статус</th><th></th></tr></thead><tbody id="usersBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- LOCATIONS -->
+      <section class="page" id="page-locations">
+        <div class="flowhint">Процесс <b>1.2</b>: справочник торговых точек. Название уникальное, удаление мягкое (деактивация), доступ раздельно для хостес и мобильных продавцов, точки видны на карте (активные — зелёные, неактивные — серые).</div>
+        <div class="grid" style="grid-template-columns:1.15fr .85fr">
+          <div class="card">
+            <div class="row" style="margin-bottom:14px">
+              <div class="seg" id="locFilter"><button class="on" data-v="all">Все</button><button data-v="active">Активные</button><button data-v="inactive">Неактивные</button></div>
+              <div class="spacer"></div>
+              <button class="btn primary" onclick="openLocForm()">+ Новая точка</button>
+            </div>
+            <table><thead><tr><th>Название</th><th>Город</th><th>Координаты</th><th>Доступ</th><th>Статус</th><th></th></tr></thead><tbody id="locBody"></tbody></table>
+          </div>
+          <div class="card"><h3>Карта точек<span class="hint">клик по маркеру — детали</span></h3><div id="locMap"></div></div>
+        </div>
+      </section>
+
+      <!-- ANALYTICS -->
+      <section class="page" id="page-analytics">
+        <div class="flowhint">Процесс <b>1.3</b>: аналитика. Фильтры (период / тип операции / тип пользователя / точка), heat map по координатам операций, статистика по точкам и пользователям, график по датам, экспорт CSV.</div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="row">
+            <div class="field" style="margin:0"><label>Период с</label><input type="date" id="fFrom"></div>
+            <div class="field" style="margin:0"><label>по</label><input type="date" id="fTo"></div>
+            <div class="field" style="margin:0"><label>Тип операции</label><select id="fOp"><option value="">Все</option><option value="reg">Регистрация</option><option value="bind">Привязка устройства</option><option value="sale">Продажа</option><option value="trail">Презентация</option></select></div>
+            <div class="field" style="margin:0"><label>Тип пользователя</label><select id="fRole"><option value="">Все</option><option value="hostess">Хостес</option><option value="seller">Мобильный продавец</option></select></div>
+            <div class="field" style="margin:0"><label>Торговая точка</label><select id="fLoc"><option value="">Все</option></select></div>
+            <div style="align-self:flex-end;display:flex;gap:8px">
+              <button class="btn primary" onclick="renderAnalytics()">Применить</button>
+              <button class="btn" onclick="exportCsv()">⬇ Экспорт CSV</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(5,1fr)" id="anKpi"></div>
+        <div class="grid" style="grid-template-columns:1.3fr 1fr;margin-top:16px">
+          <div class="card"><h3>Heat map операций<span class="hint">красный — высокая активность</span></h3><div id="anMap"></div></div>
+          <div class="card"><h3>Динамика по датам</h3><div class="bars" id="anBars"></div><div style="height:16px"></div>
+            <h3 style="margin-top:22px">По торговым точкам</h3><div id="anLoc"></div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h3>Топ пользователей</h3><div id="anUsers"></div></div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section class="page" id="page-customers">
+        <div class="flowhint">Единая база покупателей (контрагенты 1С). Видно, кто зарегистрировал: <b>registered_by_type</b> (хостес / мобильный / розница) и <b>registered_by_id</b>. Карточка клиента: профилирование, Guided Trail, активности.</div>
+        <div class="card">
+          <div class="row" style="margin-bottom:14px">
+            <input id="custSearch" placeholder="Поиск по ФИО, телефону, ИИН, паспорту" style="border:1px solid var(--line);border-radius:9px;padding:8px 11px;width:320px">
+            <div class="spacer"></div><span class="muted" id="custCount"></span>
+          </div>
+          <table><thead><tr><th>ФИО</th><th>Телефон</th><th>ИИН / Паспорт</th><th>Устройство</th><th>Зарегистрирован</th><th></th></tr></thead><tbody id="custBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- FORMS -->
+      <section class="page" id="page-forms">
+        <div class="flowhint">Настройка контента для Guided Trail: опросник профилирования, список «Других активностей», справочники причин отказа и стиков для дегустации. Здесь админ конфигурирует то, что видят хостес и продавцы в приложении.</div>
+        <div class="grid" style="grid-template-columns:1fr 1fr">
+          <div class="card"><h3>Опросник «Профилирование»</h3><div id="qList"></div><button class="btn sm" style="margin-top:10px" onclick="addQuestion()">+ Вопрос</button></div>
+          <div class="card"><h3>Другие цикловые активности</h3><div id="actList"></div><button class="btn sm" style="margin-top:10px" onclick="addActivity()">+ Активность</button></div>
+          <div class="card"><h3>Причины отказа</h3><div id="rejList"></div><button class="btn sm" style="margin-top:10px" onclick="addChip('rejections')">+ Причина</button></div>
+          <div class="card"><h3>Стики для дегустации</h3><div id="stickList"></div><button class="btn sm" style="margin-top:10px" onclick="addChip('sticks')">+ Позиция</button></div>
+        </div>
+      </section>
+
+      <!-- LOGS -->
+      <section class="page" id="page-logs">
+        <div class="flowhint">Логирование: кто, что и когда изменил. Пишутся создание/изменение/деактивация сущностей, сброс пароля, привязки, продажи, презентации.</div>
+        <div class="card">
+          <div class="row" style="margin-bottom:14px">
+            <select id="logType" style="border:1px solid var(--line);border-radius:9px;padding:8px 11px"><option value="">Все события</option></select>
+            <input id="logSearch" placeholder="Поиск по объекту / автору" style="border:1px solid var(--line);border-radius:9px;padding:8px 11px;width:280px">
+          </div>
+          <table><thead><tr><th>Дата и время</th><th>Автор</th><th>Событие</th><th>Объект</th><th>Детали</th></tr></thead><tbody id="logsBody"></tbody></table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<div class="toasts" id="toasts"></div>
+<div id="modalRoot"></div>
+<script>
+/* ============ ДЕМО-ДАННЫЕ ============ */
+const DB = {
+  users: [
+    {id:'u1', email:'aigerim.h@agency.kz', type:'hostess', fio:'Айгерим Сатыбалдиева', emp:null, wh:null, locs:['l1','l2'], active:true},
+    {id:'u2', email:'dana.h@agency.kz',    type:'hostess', fio:'Дана Оспанова',        emp:null, wh:null, locs:['l3'],      active:true},
+    {id:'u3', email:'madina.h@agency.kz',  type:'hostess', fio:'Мадина Ким',           emp:null, wh:null, locs:['l1'],      active:false},
+    {id:'u4', email:'ruslan.s@ktng.kz',    type:'seller',  fio:'Руслан Бекеев',  emp:'Бекеев Р.А. (1С: 000241)',  wh:'Склад МП-01', locs:['l1','l4'], active:true},
+    {id:'u5', email:'timur.s@ktng.kz',     type:'seller',  fio:'Тимур Ахметов',  emp:'Ахметов Т.С. (1С: 000318)', wh:'Склад МП-02', locs:['l2','l3'], active:true},
+  ],
+  locations: [
+    {id:'l1', name:'ТРЦ Dostyk Plaza',   city:'Алматы', lat:43.2338, lng:76.9560, h:true,  s:true,  active:true},
+    {id:'l2', name:'ТРЦ Mega Alma-Ata',  city:'Алматы', lat:43.2098, lng:76.8935, h:true,  s:true,  active:true},
+    {id:'l3', name:'Esentai Mall',       city:'Алматы', lat:43.2200, lng:76.9270, h:true,  s:false, active:true},
+    {id:'l4', name:'ТРЦ Forum',          city:'Алматы', lat:43.2610, lng:76.9450, h:false, s:true,  active:true},
+    {id:'l5', name:'Бар Barbary (промо)',city:'Алматы', lat:43.2480, lng:76.9120, h:true,  s:false, active:false},
+  ],
+  customers: [
+    {id:'c1', fio:'Ерлан Мукашев',    phone:'+7 701 234 56 78', iin:'880412300123', passport:'', birth:'1988-04-12', device:'DM-FLX-8842', regType:'hostess', regBy:'u1', doc:'Удостоверение личности'},
+    {id:'c2', fio:'Асель Нуркеева',   phone:'+7 707 111 22 33', iin:'930127400987', passport:'', birth:'1993-01-27', device:'', regType:'hostess', regBy:'u1', doc:'Удостоверение личности'},
+    {id:'c3', fio:'John Smith',       phone:'+7 705 998 77 66', iin:'', passport:'N4412897', birth:'1985-09-03', device:'DM-FLX-7710', regType:'seller', regBy:'u4', doc:'Паспорт (Великобритания)'},
+    {id:'c4', fio:'Алия Жумабаева',   phone:'+7 747 555 44 33', iin:'910822500456', passport:'', birth:'1991-08-22', device:'', regType:'retail', regBy:null, doc:'Удостоверение личности'},
+    {id:'c5', fio:'Данияр Сериков',   phone:'+7 700 321 65 87', iin:'870305300777', passport:'', birth:'1987-03-05', device:'DM-FLX-9931', regType:'seller', regBy:'u5', doc:'Удостоверение личности'},
+    {id:'c6', fio:'Джон Доу',         phone:'—', iin:'000000000000', passport:'', birth:'', device:'', regType:'system', regBy:null, doc:'Служебный контрагент (продажа без регистрации)'},
+  ],
+  ops: [],
+  logs: [],
+  cfg: {
+    questions: [
+      {q:'Что курите сейчас?', a:['Системы нагревания','Одноразки','Не курю']},
+      {q:'Какой вкус предпочитаете?', a:['Классический','Ментол','Ягодный','Цитрус']},
+      {q:'Знаете ли вы бренд flex?', a:['Да, пользуюсь','Слышал(а)','Нет']},
+    ],
+    activities: [
+      {name:'Тест-драйв устройства', type:'Лайк + опросник'},
+      {name:'Розыгрыш / механика', type:'Лайк'},
+      {name:'Подписка на рассылку', type:'Лайк'},
+    ],
+    rejections: ['Высокая цена','Не понравился вкус','Уже есть устройство','Не интересно','Другое'],
+    sticks: ['Faiim Regular','Faiim Ruby','Faiim Sapphire'],
+  }
+};
+
+/* генерируем операции за 14 дней */
+(function seedOps(){
+  const types=['reg','bind','sale','trail'];
+  const actors=DB.users.filter(u=>u.active);
+  let id=1;
+  for(let d=13; d>=0; d--){
+    const day=new Date(); day.setDate(day.getDate()-d);
+    const n=6+Math.floor(Math.random()*14);
+    for(let i=0;i<n;i++){
+      const u=actors[Math.floor(Math.random()*actors.length)];
+      const loc=DB.locations.find(l=>l.id===u.locs[Math.floor(Math.random()*u.locs.length)]) || DB.locations[0];
+      let t=types[Math.floor(Math.random()*types.length)];
+      if(u.type==='hostess' && t==='sale') t='bind';
+      DB.ops.push({
+        id:'o'+(id++), date:day.toISOString().slice(0,10), type:t, role:u.type, userId:u.id, locId:loc.id,
+        lat:loc.lat+(Math.random()-.5)*0.012, lng:loc.lng+(Math.random()-.5)*0.014,
+        amount: t==='sale'? (12000+Math.floor(Math.random()*40)*1000) : 0
+      });
+    }
+  }
+})();
+
+/* стартовые логи */
+(function seedLogs(){
+  const L=(mins,actor,event,object,details)=>{const t=new Date(Date.now()-mins*60000);DB.logs.push({ts:t,actor,event,object,details});};
+  L(8,'admin@ktng.kz','Сброс пароля','madina.h@agency.kz','Новый пароль отправлен на email');
+  L(46,'admin@ktng.kz','Деактивация точки','Бар Barbary (промо)','active → inactive');
+  L(120,'ruslan.s@ktng.kz','Продажа','Документ реализации №4417','Сумма 46 000 ₸, устройство DM-FLX-9931 привязано автоматически');
+  L(190,'aigerim.h@agency.kz','Привязка устройства','DM-FLX-8842 → Ерлан Мукашев','Gift: Да, точка: Dostyk Plaza');
+  L(240,'aigerim.h@agency.kz','Регистрация покупателя','Асель Нуркеева','ИИН 930127400987, онлайн + OTP');
+  L(320,'admin@ktng.kz','Создание пользователя','timur.s@ktng.kz','Тип: мобильный продавец, склад МП-02');
+  L(600,'timur.s@ktng.kz','Guided Trail','Данияр Сериков','Полный, презентация 👍, результат: продажа');
+})();
+
+/* ============ УТИЛИТЫ ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>new Intl.NumberFormat('ru-RU').format(n);
+const dt=d=>d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const uid=p=>p+Math.random().toString(36).slice(2,7);
+const userById=id=>DB.users.find(u=>u.id===id);
+const locById=id=>DB.locations.find(l=>l.id===id);
+const OPNAME={reg:'Регистрация',bind:'Привязка устройства',sale:'Продажа',trail:'Презентация'};
+const ROLENAME={hostess:'Хостес',seller:'Мобильный продавец',retail:'Розница',system:'Система'};
+
+function toast(msg,kind){const t=document.createElement('div');t.className='toast '+(kind||'');t.innerHTML=msg;$('#toasts').appendChild(t);setTimeout(()=>{t.style.opacity=0;t.style.transition='opacity .4s';setTimeout(()=>t.remove(),400)},3200);}
+function log(actor,event,object,details){DB.logs.unshift({ts:new Date(),actor,event,object,details});renderLogs();renderDash();}
+
+function modal(title,bodyHtml,footerHtml,wide){
+  $('#modalRoot').innerHTML=`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal ${wide?'wide':''}">
+    <div class="mh"><h3>${title}</h3><div class="spacer"></div><button class="btn ghost" onclick="closeModal()">✕</button></div>
+    <div class="mb">${bodyHtml}</div><div class="mf">${footerHtml||'<button class="btn" onclick="closeModal()">Закрыть</button>'}</div></div></div>`;
+}
+function closeModal(){$('#modalRoot').innerHTML='';}
+
+/* ============ НАВИГАЦИЯ ============ */
+const TITLES={dashboard:['Дашборд','Общая картина по демо-данным'],users:['Пользователи','1.1 — хостес и мобильные продавцы'],
+  locations:['Торговые точки','1.2 — справочник с мягким удалением и картой'],analytics:['Аналитика','1.3 — heat map и статистика'],
+  customers:['Покупатели','База контрагентов и карточка клиента'],forms:['Опросники и активности','Конфигурация Guided Trail'],logs:['Логи','История изменений']};
+$('#nav').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;go(a.dataset.page);});
+function go(p){
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.page===p));
+  $$('.page').forEach(s=>s.classList.toggle('on',s.id==='page-'+p));
+  $('#pgTitle').textContent=TITLES[p][0];$('#pgSub').textContent=TITLES[p][1];
+  if(p==='analytics')renderAnalytics(); if(p==='locations')renderLocations(); if(p==='dashboard')renderDash();
+}
+
+/* ============ КАРТА (SVG) ============ */
+const MAP={minLat:43.185,maxLat:43.285,minLng:76.860,maxLng:76.990,w:820,h:470};
+const mx=lng=>((lng-MAP.minLng)/(MAP.maxLng-MAP.minLng))*MAP.w;
+const my=lat=>MAP.h-((lat-MAP.minLat)/(MAP.maxLat-MAP.minLat))*MAP.h;
+function mapBase(){
+  let g=`<rect width="${MAP.w}" height="${MAP.h}" fill="#e9eff5"/>`;
+  for(let i=1;i<9;i++) g+=`<line x1="${i*95}" y1="0" x2="${i*95-40}" y2="${MAP.h}" stroke="#dbe4ee" stroke-width="${i%3?6:12}"/>`;
+  for(let j=1;j<6;j++) g+=`<line x1="0" y1="${j*80}" x2="${MAP.w}" y2="${j*80+15}" stroke="#dbe4ee" stroke-width="${j%2?6:11}"/>`;
+  g+=`<rect x="120" y="250" width="150" height="95" rx="10" fill="#dde9dc"/><text x="145" y="303" font-size="11" fill="#8aa08c">Парк</text>`;
+  g+=`<rect x="520" y="70" width="180" height="80" rx="10" fill="#dde9dc"/><text x="560" y="115" font-size="11" fill="#8aa08c">Ботсад</text>`;
+  g+=`<text x="16" y="26" font-size="12" fill="#94a3b8">г. Алматы · схема</text>`;
+  return g;
+}
+function renderLocMap(){
+  let pins='';
+  DB.locations.forEach(l=>{
+    const x=mx(l.lng),y=my(l.lat),c=l.active?'#12805c':'#94a3b8';
+    pins+=`<g class="pin" onclick="locDetail('${l.id}')">
+      <circle cx="${x}" cy="${y}" r="11" fill="${c}" fill-opacity=".18" stroke="${c}" stroke-width="2"/>
+      <circle cx="${x}" cy="${y}" r="4" fill="${c}"/>
+      <text x="${x+15}" y="${y+4}" font-size="12" font-weight="600" fill="#0f172a">${esc(l.name)}</text></g>`;
+  });
+  $('#locMap').innerHTML=`<div class="mapwrap"><svg viewBox="0 0 ${MAP.w} ${MAP.h}">${mapBase()}${pins}</svg>
+    <div class="maplegend"><div><i style="background:#12805c"></i>Активная точка</div><div><i style="background:#94a3b8"></i>Неактивная</div></div></div>`;
+}
+function renderHeatMap(ops){
+  const cells={};
+  ops.forEach(o=>{const k=Math.round(mx(o.lng)/34)+':'+Math.round(my(o.lat)/34);(cells[k]=cells[k]||{n:0,x:0,y:0}); cells[k].n++; cells[k].x+=mx(o.lng); cells[k].y+=my(o.lat);});
+  const vals=Object.values(cells); const max=Math.max(1,...vals.map(v=>v.n));
+  let heat='<defs>';
+  ['#22c55e','#eab308','#ef4444'].forEach((c,i)=>{heat+=`<radialGradient id="hg${i}"><stop offset="0%" stop-color="${c}" stop-opacity=".75"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></radialGradient>`;});
+  heat+='</defs>';
+  vals.forEach(v=>{
+    const r=v.n/max, g=r>.66?2:r>.33?1:0, rad=26+r*46;
+    heat+=`<circle cx="${(v.x/v.n).toFixed(1)}" cy="${(v.y/v.n).toFixed(1)}" r="${rad.toFixed(1)}" fill="url(#hg${g})" style="cursor:pointer" onclick="zoneDetail(${v.n})"/>`;
+  });
+  let pins='';
+  DB.locations.filter(l=>l.active).forEach(l=>{pins+=`<g class="pin" onclick="locDetail('${l.id}')"><circle cx="${mx(l.lng)}" cy="${my(l.lat)}" r="5" fill="#0f172a"/><text x="${mx(l.lng)+10}" y="${my(l.lat)+4}" font-size="11.5" font-weight="600" fill="#0f172a">${esc(l.name)}</text></g>`;});
+  $('#anMap').innerHTML=`<div class="mapwrap"><svg viewBox="0 0 ${MAP.w} ${MAP.h}">${mapBase()}${heat}${pins}</svg>
+    <div class="maplegend"><div><i style="background:#ef4444"></i>Высокая активность</div><div><i style="background:#eab308"></i>Средняя</div><div><i style="background:#22c55e"></i>Низкая</div></div></div>`;
+}
+function zoneDetail(n){
+  modal('Детализация по зоне',`<p class="muted">Клик по зоне heat map — расшифровка операций внутри радиуса.</p>
+   <div class="kpi" style="margin-bottom:12px"><div class="l">Всего операций в зоне</div><div class="v">${n}</div></div>
+   <div class="muted" style="font-size:12.5px">В боевой версии здесь список операций с датами, авторами и типами (данные агрегируются бэкендом по координатам).</div>`);
+}
+function locDetail(id){
+  const l=locById(id); const ops=DB.ops.filter(o=>o.locId===id);
+  const by=t=>ops.filter(o=>o.type===t).length;
+  const top={}; ops.forEach(o=>top[o.userId]=(top[o.userId]||0)+1);
+  const rows=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,5)
+    .map(([u,n])=>`<tr><td>${esc(userById(u).fio)}</td><td><span class="tag ${userById(u).type==='hostess'?'blue':'amber'}">${ROLENAME[userById(u).type]}</span></td><td>${n}</td></tr>`).join('');
+  modal('Точка: '+esc(l.name),`
+    <div class="row" style="margin-bottom:14px"><span class="tag ${l.active?'ok':'off'}">${l.active?'Активна':'Неактивна'}</span>
+      <span class="tag">${esc(l.city)}</span><span class="tag mono">${l.lat.toFixed(4)}, ${l.lng.toFixed(4)}</span></div>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:16px">
+      <div class="kpi"><div class="l">Всего операций</div><div class="v">${ops.length}</div></div>
+      <div class="kpi"><div class="l">Продажи</div><div class="v">${by('sale')}</div></div>
+      <div class="kpi"><div class="l">Регистрации</div><div class="v">${by('reg')}</div></div>
+      <div class="kpi"><div class="l">Привязки / Презентации</div><div class="v">${by('bind')} / ${by('trail')}</div></div>
+    </div>
+    <h3 style="font-size:13.5px">Топ пользователей в точке</h3>
+    <table><thead><tr><th>Пользователь</th><th>Роль</th><th>Операций</th></tr></thead><tbody>${rows||'<tr><td colspan=3 class="muted">Нет данных</td></tr>'}</tbody></table>`,null,true);
+}
+/* ============ 1.1 ПОЛЬЗОВАТЕЛИ ============ */
+let userFilter='all';
+$('#userFilter').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  $$('#userFilter button').forEach(x=>x.classList.toggle('on',x===b));userFilter=b.dataset.v;renderUsers();});
+$('#userSearch').addEventListener('input',renderUsers);
+function renderUsers(){
+  const q=($('#userSearch').value||'').toLowerCase();
+  const rows=DB.users.filter(u=>(userFilter==='all'||u.type===userFilter))
+    .filter(u=>!q||(u.email+u.fio).toLowerCase().includes(q))
+    .map(u=>`<tr>
+      <td><b>${esc(u.email)}</b><div class="muted" style="font-size:12px">${esc(u.fio)}</div></td>
+      <td><span class="tag ${u.type==='hostess'?'blue':'amber'}">${ROLENAME[u.type]}</span></td>
+      <td>${u.emp?esc(u.emp):'<span class="muted">—</span>'}</td>
+      <td>${u.wh?esc(u.wh):'<span class="muted">—</span>'}</td>
+      <td>${u.locs.map(id=>`<span class="tag">${esc((locById(id)||{}).name||'')}</span>`).join(' ')}</td>
+      <td><span class="tag ${u.active?'ok':'off'}">${u.active?'Активен':'Заблокирован'}</span></td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn sm" onclick="resetPwd('${u.id}')">Сбросить пароль</button>
+        <button class="btn sm" onclick="openUserForm('${u.id}')">Изменить</button>
+        <button class="btn sm ${u.active?'danger':''}" onclick="toggleUser('${u.id}')">${u.active?'Заблокировать':'Разблокировать'}</button>
+      </td></tr>`).join('');
+  $('#usersBody').innerHTML=rows||'<tr><td colspan="7" class="empty">Нет пользователей</td></tr>';
+}
+const EMP1C=['Бекеев Р.А. (1С: 000241)','Ахметов Т.С. (1С: 000318)','Сулейменов А.К. (1С: 000402)','Ким В.Н. (1С: 000455)'];
+const WH1C=['Склад МП-01','Склад МП-02','Склад МП-03','Основной склад (Алматы)'];
+function openUserForm(id){
+  const u=id?userById(id):null;
+  const locOpts=DB.locations.filter(l=>l.active).map(l=>`<label class="checkline"><input type="checkbox" class="ulc" value="${l.id}" ${u&&u.locs.includes(l.id)?'checked':''}> ${esc(l.name)} <span class="muted">(${l.h?'хостес':''}${l.h&&l.s?', ':''}${l.s?'мобильные':''})</span></label>`).join('');
+  modal(u?'Редактирование пользователя':'Новый пользователь',`
+    <div class="field"><label>Email (будет использован как логин) *</label><input id="uEmail" value="${u?esc(u.email):''}" placeholder="name@company.kz"><div class="err" id="uErr" style="display:none"></div></div>
+    <div class="field"><label>ФИО</label><input id="uFio" value="${u?esc(u.fio):''}" placeholder="Фамилия Имя"></div>
+    <div class="field"><label>Тип пользователя *</label>
+      <select id="uType" onchange="onTypeChange()"><option value="hostess" ${u&&u.type==='hostess'?'selected':''}>Хостес</option><option value="seller" ${u&&u.type==='seller'?'selected':''}>Мобильный продавец</option></select></div>
+    <div id="sellerBlock" style="display:none">
+      <div class="field"><label>Сотрудник из 1С *</label><select id="uEmp">${EMP1C.map(e=>`<option ${u&&u.emp===e?'selected':''}>${e}</option>`).join('')}</select></div>
+      <div class="field"><label>Склад из 1С *</label><select id="uWh">${WH1C.map(w=>`<option ${u&&u.wh===w?'selected':''}>${w}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>Доступные торговые точки</label><div style="border:1px solid var(--line);border-radius:9px;padding:8px 11px">${locOpts}</div></div>
+    <div class="flowhint" style="margin:0">Пароль генерируется автоматически (12+ символов) и отправляется на email вместе со ссылками на App Store и Google Play. Админ пароль не видит.</div>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="saveUser('${id||''}')">${u?'Сохранить':'Создать и отправить доступ'}</button>`);
+  onTypeChange();
+}
+function onTypeChange(){const t=$('#uType').value;$('#sellerBlock').style.display=t==='seller'?'block':'none';}
+function saveUser(id){
+  const email=$('#uEmail').value.trim().toLowerCase(), type=$('#uType').value;
+  const err=$('#uErr');
+  if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(email)){err.style.display='block';err.textContent='Укажите корректный email';return;}
+  if(DB.users.some(u=>u.email===email&&u.id!==id)){err.style.display='block';err.textContent='Пользователь с таким email уже существует';return;}
+  const locs=$$('.ulc').filter(c=>c.checked).map(c=>c.value);
+  const data={email,fio:$('#uFio').value.trim()||email.split('@')[0],type,
+    emp:type==='seller'?$('#uEmp').value:null, wh:type==='seller'?$('#uWh').value:null, locs, active:true};
+  if(id){Object.assign(userById(id),data);log('admin@ktng.kz','Изменение пользователя',email,'Тип: '+ROLENAME[type]);toast('Пользователь обновлён','ok');}
+  else{DB.users.push({id:uid('u'),...data});log('admin@ktng.kz','Создание пользователя',email,'Тип: '+ROLENAME[type]+(data.wh?', склад '+data.wh:''));
+    toast('✅ Пользователь создан. Логин: <b>'+esc(email)+'</b><br>Пароль отправлен на email','ok');}
+  closeModal();renderUsers();
+}
+function resetPwd(id){
+  const u=userById(id);
+  modal('Сброс пароля',`<p>Сбросить пароль для <b>${esc(u.email)}</b>?</p>
+    <p class="muted">Будет сгенерирован новый пароль (12+ символов) и отправлен пользователю на email. Текущий пароль перестанет работать.</p>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="doReset('${id}')">Сбросить пароль</button>`);
+}
+function doReset(id){const u=userById(id);closeModal();log('admin@ktng.kz','Сброс пароля',u.email,'Новый пароль отправлен на email');toast('✅ Пароль сброшен, письмо отправлено на '+esc(u.email),'ok');}
+function toggleUser(id){const u=userById(id);u.active=!u.active;log('admin@ktng.kz',u.active?'Разблокировка пользователя':'Блокировка пользователя',u.email,'');renderUsers();toast(u.active?'Пользователь разблокирован':'Пользователь заблокирован');}
+
+/* ============ 1.2 ТОЧКИ ============ */
+let locFilter='all';
+$('#locFilter').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  $$('#locFilter button').forEach(x=>x.classList.toggle('on',x===b));locFilter=b.dataset.v;renderLocations();});
+function renderLocations(){
+  const rows=DB.locations.filter(l=>locFilter==='all'||(locFilter==='active')===l.active).map(l=>`<tr>
+    <td><b>${esc(l.name)}</b></td><td>${esc(l.city)}</td><td class="mono">${l.lat.toFixed(4)}, ${l.lng.toFixed(4)}</td>
+    <td>${l.h?'<span class="tag blue">хостес</span> ':''}${l.s?'<span class="tag amber">мобильные</span>':''}${!l.h&&!l.s?'<span class="muted">—</span>':''}</td>
+    <td><span class="tag ${l.active?'ok':'off'}">${l.active?'Активна':'Неактивна'}</span></td>
+    <td style="text-align:right;white-space:nowrap">
+      <button class="btn sm" onclick="locDetail('${l.id}')">Детали</button>
+      <button class="btn sm" onclick="openLocForm('${l.id}')">Изменить</button>
+      <button class="btn sm ${l.active?'danger':''}" onclick="toggleLoc('${l.id}')">${l.active?'Деактивировать':'Активировать'}</button>
+    </td></tr>`).join('');
+  $('#locBody').innerHTML=rows||'<tr><td colspan="6" class="empty">Нет точек по фильтру</td></tr>';
+  renderLocMap();
+}
+function openLocForm(id){
+  const l=id?locById(id):null;
+  modal(l?'Редактирование точки':'Новая торговая точка',`
+    <div class="field"><label>Название (уникальное) *</label><input id="lName" value="${l?esc(l.name):''}"><div class="err" id="lErr" style="display:none"></div></div>
+    <div class="field"><label>Город</label><input id="lCity" value="${l?esc(l.city):'Алматы'}"></div>
+    <div class="field"><label>Координаты — кликните по карте, чтобы поставить маркер</label>
+      <div id="pickWrap"></div></div>
+    <div class="row"><div class="field" style="flex:1"><label>Широта</label><input id="lLat" value="${l?l.lat:'43.2400'}" oninput="renderPicker()"></div>
+      <div class="field" style="flex:1"><label>Долгота</label><input id="lLng" value="${l?l.lng:'76.9200'}" oninput="renderPicker()"></div></div>
+    <label class="checkline"><input type="checkbox" id="lH" ${!l||l.h?'checked':''}> Доступна для хостес</label>
+    <label class="checkline"><input type="checkbox" id="lS" ${!l||l.s?'checked':''}> Доступна для мобильных продавцов</label>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="saveLoc('${id||''}')">Сохранить</button>`,true);
+  renderPicker(id);
+}
+/* карта выбора координат */
+function renderPicker(skipId){
+  const lat=parseFloat(document.getElementById('lLat').value), lng=parseFloat(document.getElementById('lLng').value);
+  const others=DB.locations.filter(l=>l.id!==skipId).map(l=>`<g><circle cx="${mx(l.lng)}" cy="${my(l.lat)}" r="4" fill="${l.active?'#12805c':'#94a3b8'}" fill-opacity=".65"/>
+    <text x="${mx(l.lng)+8}" y="${my(l.lat)+4}" font-size="10.5" fill="#94a3b8">${esc(l.name)}</text></g>`).join('');
+  let marker='';
+  if(!isNaN(lat)&&!isNaN(lng)){const x=mx(lng),y=my(lat);
+    marker=`<g><line x1="${x}" y1="0" x2="${x}" y2="${MAP.h}" stroke="var(--accent)" stroke-dasharray="4 4" stroke-opacity=".35"/>
+      <line x1="0" y1="${y}" x2="${MAP.w}" y2="${y}" stroke="var(--accent)" stroke-dasharray="4 4" stroke-opacity=".35"/>
+      <circle cx="${x}" cy="${y}" r="13" fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-width="2"/>
+      <circle cx="${x}" cy="${y}" r="5" fill="var(--accent)"/></g>`;}
+  document.getElementById('pickWrap').innerHTML=`<div class="mapwrap" style="cursor:crosshair">
+    <svg id="pickSvg" viewBox="0 0 ${MAP.w} ${MAP.h}" onclick="pickPoint(event)">${mapBase()}${others}${marker}</svg>
+    <div class="maplegend">Клик по карте = координаты точки</div></div>`;
+}
+function pickPoint(e){
+  const svg=document.getElementById('pickSvg'), r=svg.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width*MAP.w, y=(e.clientY-r.top)/r.height*MAP.h;
+  const lng=MAP.minLng+(x/MAP.w)*(MAP.maxLng-MAP.minLng), lat=MAP.minLat+((MAP.h-y)/MAP.h)*(MAP.maxLat-MAP.minLat);
+  document.getElementById('lLat').value=lat.toFixed(5);document.getElementById('lLng').value=lng.toFixed(5);
+  renderPicker();
+}
+function saveLoc(id){
+  const name=$('#lName').value.trim();
+  const err=$('#lErr');
+  if(!name){err.style.display='block';err.textContent='Укажите название';return;}
+  if(DB.locations.some(l=>l.name.toLowerCase()===name.toLowerCase()&&l.id!==id)){err.style.display='block';err.textContent='❌ Название точки должно быть уникальным';return;}
+  const data={name,city:$('#lCity').value.trim(),lat:parseFloat($('#lLat').value)||43.24,lng:parseFloat($('#lLng').value)||76.92,h:$('#lH').checked,s:$('#lS').checked};
+  if(id){Object.assign(locById(id),data);log('admin@ktng.kz','Изменение точки',name,'');toast('Точка обновлена','ok');}
+  else{DB.locations.push({id:uid('l'),...data,active:true});log('admin@ktng.kz','Создание точки',name,data.city);toast('✅ Торговая точка создана','ok');}
+  closeModal();renderLocations();fillLocFilter();
+}
+function toggleLoc(id){
+  const l=locById(id);
+  if(l.active){ modal('Деактивация точки',`<p>Деактивировать точку <b>${esc(l.name)}</b>?</p><p class="muted">Мягкое удаление: данные останутся в базе, точка исчезнет из списков в мобильном приложении. Можно активировать обратно.</p>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="doToggleLoc('${id}')">Деактивировать</button>`); }
+  else doToggleLoc(id);
+}
+function doToggleLoc(id){const l=locById(id);l.active=!l.active;closeModal();log('admin@ktng.kz',l.active?'Активация точки':'Деактивация точки',l.name,l.active?'inactive → active':'active → inactive');renderLocations();toast(l.active?'✅ Точка активирована':'✅ Точка деактивирована (данные сохранены)','ok');}
+
+/* ============ 1.3 АНАЛИТИКА ============ */
+function fillLocFilter(){$('#fLoc').innerHTML='<option value="">Все</option>'+DB.locations.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('');}
+function filteredOps(){
+  const f=$('#fFrom').value,t=$('#fTo').value,op=$('#fOp').value,role=$('#fRole').value,loc=$('#fLoc').value;
+  return DB.ops.filter(o=>(!f||o.date>=f)&&(!t||o.date<=t)&&(!op||o.type===op)&&(!role||o.role===role)&&(!loc||o.locId===loc));
+}
+function renderAnalytics(){
+  const ops=filteredOps();
+  const c=t=>ops.filter(o=>o.type===t).length;
+  $('#anKpi').innerHTML=[['Всего операций',ops.length],['Регистраций',c('reg')],['Привязок устройств',c('bind')],['Продаж',c('sale')],['Презентаций',c('trail')]]
+    .map(([l,v])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${fmt(v)}</div></div>`).join('');
+  renderHeatMap(ops);
+  // bars
+  const byDay={};ops.forEach(o=>byDay[o.date]=(byDay[o.date]||0)+1);
+  const days=Object.keys(byDay).sort().slice(-14);const max=Math.max(1,...days.map(d=>byDay[d]));
+  $('#anBars').innerHTML=days.map(d=>`<div class="b" style="height:${(byDay[d]/max*100).toFixed(0)}%"><b>${byDay[d]}</b><span>${d.slice(8)}.${d.slice(5,7)}</span></div>`).join('');
+  // по точкам
+  const byLoc={};ops.forEach(o=>byLoc[o.locId]=(byLoc[o.locId]||0)+1);
+  $('#anLoc').innerHTML=`<table><thead><tr><th>Точка</th><th>Операций</th><th>Доля</th></tr></thead><tbody>`+
+    Object.entries(byLoc).sort((a,b)=>b[1]-a[1]).map(([id,n])=>`<tr><td><a onclick="locDetail('${id}')" style="cursor:pointer">${esc(locById(id).name)}</a></td><td>${n}</td>
+      <td><div style="background:#f1f5f9;border-radius:4px;height:7px;width:100px"><div style="background:var(--accent);height:7px;border-radius:4px;width:${(n/ops.length*100).toFixed(0)}%"></div></div></td></tr>`).join('')+`</tbody></table>`;
+  // по пользователям
+  const byU={};ops.forEach(o=>{byU[o.userId]=byU[o.userId]||{n:0,sale:0,sum:0};byU[o.userId].n++;if(o.type==='sale'){byU[o.userId].sale++;byU[o.userId].sum+=o.amount;}});
+  $('#anUsers').innerHTML=`<table><thead><tr><th>Пользователь</th><th>Роль</th><th>Всего операций</th><th>Продаж</th><th>Сумма продаж</th></tr></thead><tbody>`+
+    Object.entries(byU).sort((a,b)=>b[1].n-a[1].n).map(([id,v])=>{const u=userById(id);return `<tr><td><b>${esc(u.fio)}</b><div class="muted" style="font-size:12px">${esc(u.email)}</div></td>
+      <td><span class="tag ${u.type==='hostess'?'blue':'amber'}">${ROLENAME[u.type]}</span></td><td>${v.n}</td><td>${v.sale}</td><td>${v.sum?fmt(v.sum)+' ₸':'—'}</td></tr>`}).join('')+`</tbody></table>`;
+}
+function exportCsv(){
+  const ops=filteredOps();
+  const rows=[['id','date','type','role','user','location','lat','lng','amount']].concat(
+    ops.map(o=>[o.id,o.date,OPNAME[o.type],ROLENAME[o.role],userById(o.userId).fio,locById(o.locId).name,o.lat.toFixed(5),o.lng.toFixed(5),o.amount]));
+  const csv=rows.map(r=>r.join(';')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('﻿'+csv);a.download='analytics.csv';a.click();
+  toast('⬇ Файл analytics.csv сформирован ('+ops.length+' строк)','ok');
+}
+
+/* ============ ПОКУПАТЕЛИ ============ */
+$('#custSearch').addEventListener('input',renderCustomers);
+function regLabel(c){
+  if(c.regType==='retail')return '<span class="tag">Розница</span>';
+  if(c.regType==='system')return '<span class="tag">Служебный</span>';
+  const u=userById(c.regBy);
+  return `<span class="tag ${c.regType==='hostess'?'blue':'amber'}">${ROLENAME[c.regType]}</span> <span class="muted">${u?esc(u.fio):''}</span>`;
+}
+function renderCustomers(){
+  const q=($('#custSearch').value||'').toLowerCase();
+  const list=DB.customers.filter(c=>!q||(c.fio+c.phone+c.iin+c.passport).toLowerCase().includes(q));
+  $('#custCount').textContent='Всего: '+list.length;
+  $('#custBody').innerHTML=list.map(c=>`<tr>
+    <td><b>${esc(c.fio)}</b><div class="muted" style="font-size:12px">${esc(c.birth||'')}</div></td>
+    <td class="mono">${esc(c.phone)}</td>
+    <td class="mono">${c.iin?esc(c.iin):'<span class="tag red">паспорт '+esc(c.passport)+'</span>'}</td>
+    <td>${c.device?'<span class="tag ok mono">'+esc(c.device)+'</span>':'<span class="muted">не привязано</span>'}</td>
+    <td>${regLabel(c)}</td>
+    <td style="text-align:right"><button class="btn sm" onclick="custCard('${c.id}')">Карточка клиента</button></td></tr>`).join('');
+}
+function custCard(id){
+  const c=DB.customers.find(x=>x.id===id);
+  const trails=[{d:'21.08',t:'Полный',r:'Продажа',like:'👍',by:'Айгерим С.'},{d:'02.08',t:'Технический',r:'Отказ · Высокая цена',like:'👎',by:'Руслан Б.'}];
+  modal('Карточка клиента',`
+    <div class="row" style="margin-bottom:14px"><b style="font-size:16px">${esc(c.fio)}</b>${regLabel(c)}</div>
+    <table style="margin-bottom:18px">
+      <tr><td class="muted">Телефон</td><td class="mono">${esc(c.phone)}</td></tr>
+      <tr><td class="muted">${c.iin?'ИИН':'Номер паспорта'}</td><td class="mono">${esc(c.iin||c.passport)}</td></tr>
+      <tr><td class="muted">Дата рождения</td><td>${esc(c.birth||'—')}</td></tr>
+      <tr><td class="muted">Документ</td><td>${esc(c.doc)}</td></tr>
+      <tr><td class="muted">Устройство</td><td>${c.device?'<span class="tag ok mono">'+esc(c.device)+'</span>':'—'}</td></tr>
+    </table>
+    <h3 style="font-size:13.5px">Профилирование</h3>
+    <div style="margin-bottom:16px">${DB.cfg.questions.map(q=>`<div style="padding:7px 0;border-bottom:1px solid #f1f5f9"><div class="muted" style="font-size:12.5px">${esc(q.q)}</div><b>${esc(q.a[0])}</b></div>`).join('')}</div>
+    <h3 style="font-size:13.5px">Guided Trail</h3>
+    <table style="margin-bottom:16px"><thead><tr><th>Дата</th><th>Тип</th><th>Презентация</th><th>Результат</th><th>Кем</th></tr></thead>
+      <tbody>${trails.map(t=>`<tr><td>${t.d}</td><td>${t.t}</td><td>${t.like}</td><td>${t.r}</td><td>${t.by}</td></tr>`).join('')}</tbody></table>
+    <h3 style="font-size:13.5px">Другие цикловые активности</h3>
+    <div>${DB.cfg.activities.map(a=>`<span class="tag" style="margin-right:6px">${esc(a.name)}</span>`).join('')}</div>`,null,true);
+}
+
+/* ============ ОПРОСНИКИ ============ */
+function renderForms(){
+  $('#qList').innerHTML=DB.cfg.questions.map((q,i)=>`<div style="padding:9px 0;border-bottom:1px solid #f1f5f9">
+    <div class="row"><b style="flex:1">${esc(q.q)}</b><button class="btn ghost sm" onclick="DB.cfg.questions.splice(${i},1);renderForms()">✕</button></div>
+    <div style="margin-top:5px">${q.a.map(a=>`<span class="tag" style="margin-right:5px">${esc(a)}</span>`).join('')}</div></div>`).join('')||'<div class="muted">Пусто</div>';
+  $('#actList').innerHTML=DB.cfg.activities.map((a,i)=>`<div class="row" style="padding:9px 0;border-bottom:1px solid #f1f5f9">
+    <b style="flex:1">${esc(a.name)}</b><span class="tag">${esc(a.type)}</span><button class="btn ghost sm" onclick="DB.cfg.activities.splice(${i},1);renderForms()">✕</button></div>`).join('')||'<div class="muted">Пусто</div>';
+  ['rejections','sticks'].forEach(k=>{
+    $(k==='rejections'?'#rejList':'#stickList').innerHTML=DB.cfg[k].map((c,i)=>`<span class="tag" style="margin:0 6px 6px 0">${esc(c)} <a onclick="DB.cfg.${k}.splice(${i},1);renderForms()" style="cursor:pointer">✕</a></span>`).join('');
+  });
+}
+function addQuestion(){
+  modal('Новый вопрос',`<div class="field"><label>Текст вопроса</label><input id="nq"></div>
+    <div class="field"><label>Варианты ответа (через запятую)</label><input id="na" placeholder="Вариант 1, Вариант 2"></div>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="(function(){var q=document.getElementById('nq').value.trim();var a=document.getElementById('na').value.split(',').map(function(s){return s.trim()}).filter(Boolean);if(q){DB.cfg.questions.push({q:q,a:a});renderForms();log('admin@ktng.kz','Изменение опросника',q,'добавлен вопрос');}closeModal();})()">Добавить</button>`);
+}
+function addActivity(){
+  modal('Новая активность',`<div class="field"><label>Название</label><input id="an"></div>
+    <div class="field"><label>Тип</label><select id="at"><option>Лайк</option><option>Лайк + опросник</option><option>Опросник</option></select></div>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="(function(){var n=document.getElementById('an').value.trim();if(n){DB.cfg.activities.push({name:n,type:document.getElementById('at').value});renderForms();log('admin@ktng.kz','Изменение активностей',n,'добавлена активность');}closeModal();})()">Добавить</button>`);
+}
+function addChip(k){
+  modal('Добавить значение',`<div class="field"><label>Значение</label><input id="cv"></div>`,
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="(function(){var v=document.getElementById('cv').value.trim();if(v){DB.cfg['${k}'].push(v);renderForms();}closeModal();})()">Добавить</button>`);
+}
+
+/* ============ ЛОГИ ============ */
+$('#logSearch').addEventListener('input',renderLogs);
+$('#logType').addEventListener('change',renderLogs);
+function renderLogs(){
+  const types=[...new Set(DB.logs.map(l=>l.event))];
+  const cur=$('#logType').value;
+  $('#logType').innerHTML='<option value="">Все события</option>'+types.map(t=>`<option ${t===cur?'selected':''}>${esc(t)}</option>`).join('');
+  const q=($('#logSearch').value||'').toLowerCase();
+  $('#logsBody').innerHTML=DB.logs.filter(l=>(!cur||l.event===cur)&&(!q||(l.actor+l.object).toLowerCase().includes(q)))
+    .map(l=>`<tr><td class="mono">${dt(l.ts)}</td><td>${esc(l.actor)}</td><td><span class="tag">${esc(l.event)}</span></td><td><b>${esc(l.object)}</b></td><td class="muted">${esc(l.details)}</td></tr>`).join('')
+    ||'<tr><td colspan="5" class="empty">Нет записей</td></tr>';
+}
+
+/* ============ ДАШБОРД ============ */
+function renderDash(){
+  const ops=DB.ops, c=t=>ops.filter(o=>o.type===t).length;
+  const sum=ops.filter(o=>o.type==='sale').reduce((s,o)=>s+o.amount,0);
+  $('#dashKpi').innerHTML=[['Операций за 14 дней',fmt(ops.length),'все типы'],['Продаж',fmt(c('sale')),fmt(sum)+' ₸'],
+    ['Привязок устройств',fmt(c('bind')),'хостес + авто при продаже'],['Активных пользователей',DB.users.filter(u=>u.active).length,'хостес и продавцы']]
+    .map(([l,v,d])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join('');
+  const byDay={};ops.forEach(o=>byDay[o.date]=(byDay[o.date]||0)+1);
+  const days=Object.keys(byDay).sort();const max=Math.max(1,...days.map(d=>byDay[d]));
+  $('#dashBars').innerHTML=days.map(d=>`<div class="b" style="height:${(byDay[d]/max*100).toFixed(0)}%"><b>${byDay[d]}</b><span>${d.slice(8)}.${d.slice(5,7)}</span></div>`).join('');
+  $('#dashLogs').innerHTML=DB.logs.slice(0,6).map(l=>`<div style="padding:8px 0;border-bottom:1px solid #f1f5f9">
+    <div class="row"><span class="tag">${esc(l.event)}</span><span class="spacer"></span><span class="muted mono" style="font-size:11.5px">${dt(l.ts)}</span></div>
+    <div style="margin-top:4px"><b>${esc(l.object)}</b></div><div class="muted" style="font-size:12px">${esc(l.actor)}</div></div>`).join('');
+  const byLoc={};ops.forEach(o=>byLoc[o.locId]=(byLoc[o.locId]||0)+1);
+  $('#dashLoc').innerHTML=`<table><tbody>`+Object.entries(byLoc).sort((a,b)=>b[1]-a[1]).map(([id,n])=>`<tr><td>${esc(locById(id).name)}</td><td style="text-align:right"><b>${n}</b></td></tr>`).join('')+`</tbody></table>`;
+  const byU={};ops.forEach(o=>byU[o.userId]=(byU[o.userId]||0)+1);
+  $('#dashUsers').innerHTML=`<table><tbody>`+Object.entries(byU).sort((a,b)=>b[1]-a[1]).map(([id,n])=>{const u=userById(id);
+    return `<tr><td>${esc(u.fio)} <span class="tag ${u.type==='hostess'?'blue':'amber'}">${ROLENAME[u.type]}</span></td><td style="text-align:right"><b>${n}</b></td></tr>`}).join('')+`</tbody></table>`;
+}
+
+/* ============ INIT ============ */
+(function init(){
+  const to=new Date(),from=new Date();from.setDate(from.getDate()-13);
+  $('#fFrom').value=from.toISOString().slice(0,10);$('#fTo').value=to.toISOString().slice(0,10);
+  fillLocFilter();renderUsers();renderLocations();renderCustomers();renderForms();renderLogs();renderDash();renderAnalytics();
+})();
+</script>
+</body>
+</html>

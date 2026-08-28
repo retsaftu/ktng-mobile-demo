@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KT&amp;G — Хостес (демо)</title>
+<style>
+:root{--bg:#eef1f6;--panel:#fff;--ink:#0f172a;--muted:#6b7789;--line:#e5e9f0;--accent:#2563eb;--accent-soft:#e8efff;--danger:#dc2626;--danger-soft:#fee2e2;
+ --ok:#12805c;--ok-soft:#e7f6f0;--warn:#b45309;--warn-soft:#fdf3e3;--info:#1d4ed8;--info-soft:#e9efff;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#e7ecf4;font:15px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);
+ display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+button,input,select,textarea{font:inherit;color:inherit}
+/* планшет */
+.tablet{width:1120px;max-width:100%;height:min(820px,92vh);background:#fff;border:1px solid #d7dfeb;border-radius:26px;padding:12px;box-shadow:0 24px 60px rgba(15,23,42,.14);display:flex;flex-direction:column}
+.screen{flex:1;background:var(--bg);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.devlabel{color:#94a3b8;font-size:11px;text-align:center;padding:5px 0 7px;letter-spacing:1px;text-transform:uppercase}
+/* header */
+.appbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.appbar .logo{font-weight:800;letter-spacing:.5px;color:var(--accent)}
+.locbtn{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 12px;cursor:pointer;max-width:340px}
+.locbtn .lab{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.locbtn b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.netpill{display:flex;align-items:center;gap:7px;border-radius:99px;padding:6px 12px;font-size:12.5px;font-weight:650;cursor:pointer;border:1px solid transparent}
+.netpill.on{background:var(--ok-soft);color:var(--ok)}
+.netpill.off{background:var(--warn-soft);color:var(--warn)}
+.netpill i{width:8px;height:8px;border-radius:99px;background:currentColor;display:block}
+.syncbadge{background:var(--accent);color:#fff;border-radius:99px;font-size:11px;padding:2px 7px;font-weight:700}
+.body{flex:1;overflow:auto;padding:20px}
+/* primitives */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.card h3{margin:0 0 14px;font-size:15px}
+.grid{display:grid;gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 18px;cursor:pointer;font-size:15px;font-weight:600}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.sm{padding:8px 13px;font-size:13.5px;border-radius:10px}
+.btn.block{width:100%;justify-content:center;text-align:center}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;cursor:pointer;transition:.15s;min-height:150px;display:flex;flex-direction:column}
+.tile:hover{border-color:#cbd5e1;transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.07)}
+.tile .ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--accent-soft);color:var(--accent);margin-bottom:14px}
+.tile b{font-size:16.5px}
+.tile p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+.tile .n{margin-top:auto;font-size:11px;color:#94a3b8;letter-spacing:.5px;text-transform:uppercase}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;outline:none;font-size:15.5px}
+.field input:focus{border-color:#94a3b8}
+.field .err{color:var(--danger);font-size:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:650;padding:4px 10px;border-radius:99px;background:#f1f5f9;color:var(--muted)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.red{background:var(--danger-soft);color:var(--danger)}
+.tag.blue{background:var(--info-soft);color:var(--info)}
+.tag.amber{background:var(--warn-soft);color:var(--warn)}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.steps{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.step{flex:1;min-width:110px;border-top:3px solid var(--line);padding-top:8px;font-size:12px;color:#94a3b8}
+.step.on{border-color:var(--accent);color:var(--accent);font-weight:650}
+.step.done{border-color:var(--ok);color:var(--ok)}
+.pagehead{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.pagehead h2{margin:0;font-size:20px}
+.pagehead .sub{color:var(--muted);font-size:13px}
+.like{display:inline-flex;gap:10px}
+.like button{border:1px solid var(--line);background:#fff;border-radius:14px;width:74px;height:56px;font-size:24px;cursor:pointer}
+.like button.on{border-color:var(--accent);background:var(--accent-soft)}
+.chk{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:9px;cursor:pointer;background:#fff}
+.chk.on{border-color:var(--accent);background:var(--accent-soft)}
+.chk input{width:19px;height:19px;accent-color:var(--accent)}
+.list .it{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:#fff;cursor:pointer}
+.list .it:hover{border-color:#cbd5e1}
+.list .it .av{width:42px;height:42px;border-radius:12px;background:#eef2f7;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted)}
+.result{text-align:center;padding:28px 20px}
+.result .big{font-size:54px;line-height:1}
+.result h2{margin:14px 0 6px;font-size:22px}
+.modal-bg{position:absolute;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px}
+.modal{background:#fff;border-radius:18px;width:560px;max-width:100%;max-height:100%;overflow:auto}
+.modal .mh{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center}
+.modal .mh h3{margin:0;font-size:17px}
+.modal .mb{padding:18px 20px}
+.modal .mf{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end;background:#fbfcfe}
+.toasts{position:absolute;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:60;pointer-events:none}
+.toast{background:#1e293b;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;box-shadow:0 12px 30px rgba(2,6,23,.3);max-width:80%}
+.toast.err{background:var(--danger)}.toast.ok{background:var(--ok)}
+.hint{background:var(--info-soft);border:1px solid #cfdcff;color:#1e3a8a;border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:16px}
+.screenpage{display:none}.screenpage.on{display:block}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;color:var(--muted);padding:8px;border-bottom:1px solid var(--line)}
+td{padding:11px 8px;border-bottom:1px solid #f1f5f9}
+.login{display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(165deg,#e8efff,#dbe7fb 55%,#eef2f7)}
+.loginbox{background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px;width:420px;max-width:92%;box-shadow:0 16px 40px rgba(15,23,42,.08)}
+.loginbox h1{margin:0 0 4px;font-size:24px}
+.kbd{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:260px}
+.kbd button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;font-size:19px;font-weight:600;cursor:pointer}
+.otpbox{display:flex;gap:9px;justify-content:center;margin:14px 0}
+.otpbox div{width:48px;height:58px;border:2px solid var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.otpbox div.f{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="tablet">
+  <div class="devlabel">Планшет · приложение хостес (Flutter)</div>
+  <div class="screen" id="screen">
+
+    <!-- LOGIN -->
+    <div id="loginScreen" class="login">
+      <div class="loginbox">
+        <div style="color:var(--accent);font-weight:800;letter-spacing:1px;margin-bottom:14px">KT&amp;G MOBILE</div>
+        <h1>Вход</h1>
+        <p class="muted" style="margin:0 0 20px;font-size:13.5px">Процесс 4.3 · логин = email, пароль пришёл письмом при создании учётки</p>
+        <div class="field"><label>Email</label><input id="lgEmail" value="aigerim.h@agency.kz"></div>
+        <div class="field"><label>Пароль</label><input id="lgPass" type="password" value="Xk7#mP2vQz9L"><div class="err" id="lgErr" style="display:none"></div></div>
+        <button class="btn primary block" onclick="doLogin()">Войти</button>
+        <p class="muted" style="font-size:12.5px;margin-top:14px">Автоматического разлогинивания нет — приложение работает офлайн.</p>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div id="appScreen" style="display:none;flex-direction:column;height:100%">
+      <div class="appbar">
+        <div class="logo">KT&amp;G</div>
+        <button class="locbtn" onclick="openLocPicker()">
+          <span>⚑</span><span><span class="lab">Торговая точка</span><b id="curLoc">—</b></span><span class="muted">▾</span>
+        </button>
+        <div class="spacer"></div>
+        <button class="netpill on" id="netPill" onclick="toggleNet()"><i></i><span id="netTxt">Онлайн</span></button>
+        <button class="btn sm" onclick="openSync()">Очередь <span class="syncbadge" id="syncBadge">0</span></button>
+        <button class="btn sm ghost" onclick="goHome()">🏠</button>
+        <button class="btn sm ghost" onclick="logout()">Выход</button>
+      </div>
+      <div class="body" id="body"></div>
+    </div>
+
+    <div id="modalRoot"></div>
+    <div class="toasts" id="toasts"></div>
+  </div>
+</div>
+<script>
+/* ================= СОСТОЯНИЕ ================= */
+const ME={id:'u1', fio:'Айгерим Сатыбалдиева', email:'aigerim.h@agency.kz', role:'hostess'};
+const LOCS=[{id:'l1',name:'ТРЦ Dostyk Plaza',city:'Алматы'},{id:'l2',name:'ТРЦ Mega Alma-Ata',city:'Алматы'},{id:'l3',name:'Esentai Mall',city:'Алматы'}];
+const CFG={
+  sticks:['Faiim Regular','Faiim Ruby','Faiim Sapphire'],
+  rejections:['Высокая цена','Не понравился вкус','Уже есть устройство','Не интересно','Другое'],
+  questions:[{q:'Что курите сейчас?',a:['Системы нагревания','Одноразки','Не курю']},
+             {q:'Какой вкус предпочитаете?',a:['Классический','Ментол','Ягодный','Цитрус']},
+             {q:'Знаете ли вы бренд flex?',a:['Да, пользуюсь','Слышал(а)','Нет']}],
+  activities:[{name:'Тест-драйв устройства',type:'like_form'},{name:'Розыгрыш / механика',type:'like'},{name:'Подписка на рассылку',type:'like'}]
+};
+/* Data Matrix устройств flex: код с корпуса устройства */
+const DEVICES={ 'DM-FLX-8842':'c1', 'DM-FLX-7710':'c3', 'DM-FLX-1001':null, 'DM-FLX-1002':null, 'DM-FLX-2201':null, 'DM-FLX-2202':null };
+const CUSTOMERS=[
+  {id:'c1',fio:'Ерлан Мукашев',phone:'+77012345678',iin:'880412300123',passport:'',birth:'1988-04-12',doc:'Удостоверение личности',regBy:'u1',regType:'hostess',regName:'Айгерим Сатыбалдиева',device:'DM-FLX-8842'},
+  {id:'c2',fio:'Асель Нуркеева',phone:'+77071112233',iin:'930127400987',passport:'',birth:'1993-01-27',doc:'Удостоверение личности',regBy:'u1',regType:'hostess',regName:'Айгерим Сатыбалдиева',device:''},
+  {id:'c3',fio:'John Smith',phone:'+77059987766',iin:'',passport:'N4412897',birth:'1985-09-03',doc:'Паспорт (Великобритания)',regBy:'u4',regType:'seller',regName:'Руслан Бекеев',device:'DM-FLX-7710'},
+  {id:'c5',fio:'Данияр Сериков',phone:'+77003216587',iin:'870305300777',passport:'',birth:'1987-03-05',doc:'Удостоверение личности',regBy:'u5',regType:'seller',regName:'Тимур Ахметов',device:'DM-FLX-9931'}
+];
+const S={online:true, loc:LOCS[0], queue:[], flow:{}};
+
+/* ================= УТИЛИТЫ ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=p=>p+Math.random().toString(36).slice(2,7);
+const digits=s=>String(s).replace(/\D/g,'');
+const initials=f=>f.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+function toast(m,k){const t=document.createElement('div');t.className='toast '+(k||'');t.innerHTML=m;$('#toasts').appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity=0;setTimeout(()=>t.remove(),400)},3000);}
+function modal(title,body,footer){$('#modalRoot').innerHTML=`<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">
+  <div class="mh"><h3>${title}</h3><div class="spacer"></div><button class="btn sm ghost" onclick="closeModal()">✕</button></div>
+  <div class="mb">${body}</div><div class="mf">${footer||'<button class="btn" onclick="closeModal()">Закрыть</button>'}</div></div></div>`;}
+function closeModal(){$('#modalRoot').innerHTML='';}
+function setBody(h){$('#body').innerHTML=h;$('#body').scrollTop=0;}
+function head(title,sub){return `<div class="pagehead"><button class="btn sm ghost" onclick="goHome()">←</button><div><h2>${title}</h2><div class="sub">${sub||''}</div></div></div>`;}
+function steps(list,cur){return `<div class="steps">${list.map((s,i)=>`<div class="step ${i===cur?'on':i<cur?'done':''}">${i+1}. ${s}</div>`).join('')}</div>`;}
+function gps(){return {lat:(43.20+Math.random()*0.08).toFixed(5), lng:(76.87+Math.random()*0.1).toFixed(5)};}
+function myCustomers(){return CUSTOMERS.filter(c=>c.regBy===ME.id);}
+function findByPhone(p){const d=digits(p);return CUSTOMERS.find(c=>digits(c.phone)===d);}
+
+/* ================= ВХОД / ШАПКА ================= */
+function doLogin(){
+  const e=$('#lgEmail').value.trim(), p=$('#lgPass').value;
+  if(!e||!p){$('#lgErr').style.display='block';$('#lgErr').textContent='❌ Неверный email или пароль';return;}
+  $('#loginScreen').style.display='none';$('#appScreen').style.display='flex';
+  $('#curLoc').textContent=S.loc.name;
+  goHome();toast('✅ Авторизован: '+esc(ME.fio),'ok');
+}
+function logout(){$('#appScreen').style.display='none';$('#loginScreen').style.display='flex';}
+function toggleNet(){
+  S.online=!S.online;
+  const p=$('#netPill');p.className='netpill '+(S.online?'on':'off');$('#netTxt').textContent=S.online?'Онлайн':'Офлайн';
+  toast(S.online?'Соединение восстановлено — можно синхронизировать очередь':'Режим без интернета: операции уходят в локальную очередь');
+  if($('#body').dataset.page)renderPage($('#body').dataset.page);
+}
+function updBadge(){$('#syncBadge').textContent=S.queue.filter(q=>q.status!=='synced').length;}
+function openLocPicker(){
+  modal('Выбор торговой точки (4.2)',`<p class="muted" style="margin-top:0">Список отфильтрован по доступу: точки, разрешённые для хостес. Текущая точка отправляется во все операции.</p>
+    <div class="list">${LOCS.map(l=>`<div class="it" onclick="pickLoc('${l.id}')"><div class="av">⚑</div><div style="flex:1"><b>${esc(l.name)}</b><div class="muted" style="font-size:13px">${esc(l.city)}</div></div>${l.id===S.loc.id?'<span class="tag ok">Текущая</span>':''}</div>`).join('')}</div>`,'');
+}
+function pickLoc(id){S.loc=LOCS.find(l=>l.id===id);$('#curLoc').textContent=S.loc.name;closeModal();toast('Точка: '+esc(S.loc.name),'ok');}
+
+/* ================= ГЛАВНАЯ ================= */
+const PAGES={home:renderHome,reg:renderReg,bind:renderBind,trail:renderTrail,cust:renderCust};
+function renderPage(p){$('#body').dataset.page=p;PAGES[p]();}
+function goHome(){renderPage('home');}
+function renderHome(){
+  const pend=S.queue.filter(q=>q.status==='pending').length;
+  setBody(`
+  <div class="row" style="margin-bottom:18px">
+    <div><h2 style="margin:0;font-size:22px">Привет, ${esc(ME.fio.split(' ')[0])}</h2>
+    <div class="muted" style="font-size:13.5px">Точка: <b>${esc(S.loc.name)}</b> · режим: <b>${S.online?'онлайн':'офлайн'}</b></div></div>
+    <div class="spacer"></div>
+    ${pend?`<span class="tag amber">В очереди на синхронизацию: ${pend}</span>`:'<span class="tag ok">Всё синхронизировано</span>'}
+  </div>
+  <div class="tiles">
+    <div class="tile" onclick="renderPage('bind')"><div class="ic">⇄</div><b>Привязка устройства</b><p>Найти покупателя, ввести код устройства, отметить Gift.</p><div class="n">Процесс 2.1 / 2.2</div></div>
+    <div class="tile" onclick="renderPage('trail')"><div class="ic">★</div><b>Guided Trail</b><p>Презентация: технический или полный сценарий, профилирование, гифт, активности.</p><div class="n">Процесс 2.3</div></div>
+    <div class="tile" onclick="renderPage('reg')"><div class="ic">＋</div><b>Регистрация покупателя</b><p>Гражданин РК (ИИН) или не гражданин (паспорт). Онлайн — с OTP, офлайн — в очередь.</p><div class="n">Процесс 4.1</div></div>
+    <div class="tile" onclick="renderPage('cust')"><div class="ic">☺</div><b>Мои покупатели</b><p>Список и редактирование только тех, кого зарегистрировали вы.</p><div class="n">Процесс 2.4</div></div>
+    <div class="tile" onclick="openSync()"><div class="ic">⟳</div><b>Очередь синхронизации</b><p>Операции, сохранённые офлайн, и статусы их отправки на бэкенд.</p><div class="n">Офлайн-режим</div></div>
+  </div>`);
+}
+/* ================= 4.1 РЕГИСТРАЦИЯ ================= */
+function renderReg(prefillPhone){
+  S.flow={step:0, citizen:'kz', data:{phone:prefillPhone||''}, otp:''};
+  regStep();
+}
+function regStep(){
+  const f=S.flow, ST=['Тип гражданства','Данные покупателя',S.online?'Подтверждение (OTP)':'Сохранение офлайн'];
+  if(f.step===0){
+    setBody(head('Регистрация покупателя','Процесс 4.1 · универсальный')+steps(ST,0)+`
+    <div class="card" style="max-width:640px">
+      <h3>Кто регистрируется?</h3>
+      <div class="chk ${f.citizen==='kz'?'on':''}" onclick="S.flow.citizen='kz';regStep()"><input type="radio" ${f.citizen==='kz'?'checked':''}><div><b>Гражданин РК</b><div class="muted" style="font-size:13px">Обязательное поле — ИИН</div></div></div>
+      <div class="chk ${f.citizen==='for'?'on':''}" onclick="S.flow.citizen='for';regStep()"><input type="radio" ${f.citizen==='for'?'checked':''}><div><b>Не гражданин РК</b><div class="muted" style="font-size:13px">Обязательное поле — номер паспорта + ФИО, дата рождения, документ</div></div></div>
+      <button class="btn primary block" style="margin-top:14px" onclick="S.flow.step=1;regStep()">Далее</button>
+    </div>`);
+  } else if(f.step===1){
+    const kz=f.citizen==='kz';
+    setBody(head('Регистрация покупателя','Процесс 4.1 · '+(kz?'гражданин РК':'не гражданин РК'))+steps(ST,1)+`
+    <div class="card" style="max-width:720px">
+      ${S.online?'<div class="hint">Онлайн-режим: после сохранения покупателю уйдёт SMS с кодом. Ввод кода = согласие с пользовательским соглашением.</div>'
+                :'<div class="hint">Офлайн-режим: данные с бумажной формы. Запись уйдёт в локальную БД со статусом pending_sync и будет проверена при появлении интернета (при ошибках — задача в Bitrix24).</div>'}
+      <div class="row" style="gap:14px"><div class="field" style="flex:1"><label>ФИО *</label><input id="rFio" value="${esc(f.data.fio||'')}" placeholder="Фамилия Имя"></div>
+        <div class="field" style="flex:1"><label>Телефон *</label><input id="rPhone" value="${esc(f.data.phone||'')}" placeholder="+7 7__ ___ __ __"></div></div>
+      <div class="row" style="gap:14px">
+        <div class="field" style="flex:1"><label>${kz?'ИИН *':'Номер паспорта *'}</label><input id="rDocNum" value="${esc(f.data.docnum||'')}" placeholder="${kz?'12 цифр':'например N4412897'}"></div>
+        <div class="field" style="flex:1"><label>Дата рождения ${kz?'':'*'}</label><input id="rBirth" type="date" value="${esc(f.data.birth||'')}"></div>
+      </div>
+      <div class="field"><label>Документ</label><select id="rDoc">${(kz?['Удостоверение личности','Паспорт РК']:['Паспорт (иностранный)','Вид на жительство']).map(d=>`<option>${d}</option>`).join('')}</select></div>
+      <div class="err" id="rErr" style="color:var(--danger);display:none;margin-bottom:10px"></div>
+      <div class="muted" style="font-size:12.5px;margin-bottom:14px">Будет сохранено: <span class="mono">registered_by_type=hostess, registered_by_id=${ME.id}, location_id=${S.loc.id}</span></div>
+      <div class="row"><button class="btn" onclick="S.flow.step=0;regStep()">Назад</button>
+        <button class="btn primary" style="flex:1" onclick="regSubmit()">${S.online?'Отправить код по SMS':'Сохранить офлайн'}</button></div>
+    </div>`);
+  } else if(f.step===2){
+    setBody(head('Подтверждение номера','Процесс 4.1 · OTP')+steps(ST,2)+`
+    <div class="card" style="max-width:520px;text-align:center">
+      <p>Код отправлен на <b>${esc(f.data.phone)}</b></p>
+      <div class="otpbox">${[0,1,2,3].map(i=>`<div class="${i===f.otp.length?'f':''}">${f.otp[i]||''}</div>`).join('')}</div>
+      <p class="muted" style="font-size:13px">Демо-код: <b>1234</b>. Ввод кода = согласие с пользовательским соглашением.</p>
+      <div class="row" style="justify-content:center;margin-top:10px"><div class="kbd">
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="otpKey('${n}')">${n}</button>`).join('')}
+        <button onclick="otpKey('back')">⌫</button><button onclick="otpKey('0')">0</button><button onclick="otpKey('clr')">C</button></div></div>
+      <div class="err" id="oErr" style="color:var(--danger);display:none;margin-top:12px"></div>
+    </div>`);
+  }
+}
+function regSubmit(){
+  const f=S.flow, kz=f.citizen==='kz';
+  f.data={fio:$('#rFio').value.trim(), phone:$('#rPhone').value.trim(), docnum:$('#rDocNum').value.trim(), birth:$('#rBirth').value, doc:$('#rDoc').value};
+  const e=$('#rErr');
+  if(!f.data.fio||!f.data.phone){e.style.display='block';e.textContent='❌ Заполните ФИО и телефон';return;}
+  if(kz&&digits(f.data.docnum).length!==12){e.style.display='block';e.textContent='❌ ИИН должен содержать 12 цифр';return;}
+  if(!kz&&!f.data.docnum){e.style.display='block';e.textContent='❌ Укажите номер паспорта';return;}
+  if(findByPhone(f.data.phone)){e.style.display='block';e.textContent='❌ Покупатель с таким телефоном уже зарегистрирован';return;}
+  if(S.online){f.step=2;f.otp='';regStep();}
+  else{ // офлайн — в очередь
+    const g=gps();
+    S.queue.push({id:uid('q'),type:'Регистрация покупателя',title:f.data.fio,status:'pending',ts:new Date(),gps:g,loc:S.loc.name,payload:{...f.data,citizen:f.citizen}});
+    updBadge();
+    finishScreen('Сохранено офлайн','Запись покупателя <b>'+esc(f.data.fio)+'</b> сохранена в локальную БД<br>Статус: <span class="mono">pending_sync</span> · GPS '+g.lat+', '+g.lng,'⏱');
+  }
+}
+function otpKey(k){
+  const f=S.flow;
+  if(k==='back')f.otp=f.otp.slice(0,-1); else if(k==='clr')f.otp=''; else if(f.otp.length<4)f.otp+=k;
+  regStep();
+  if(f.otp.length===4){
+    if(f.otp!=='1234'){setTimeout(()=>{$('#oErr').style.display='block';$('#oErr').textContent='❌ Неверный код, попробуйте ещё раз';f.otp='';},250);return;}
+    const c={id:uid('c'),fio:f.data.fio,phone:f.data.phone,iin:f.citizen==='kz'?f.data.docnum:'',passport:f.citizen==='kz'?'':f.data.docnum,
+      birth:f.data.birth,doc:f.data.doc,regBy:ME.id,regType:'hostess',regName:ME.fio,device:''};
+    CUSTOMERS.push(c);
+    setTimeout(()=>finishScreen('Покупатель зарегистрирован','<b>'+esc(c.fio)+'</b><br>'+(c.iin?'ИИН '+esc(c.iin):'Паспорт '+esc(c.passport))+'<br><span class="muted">Согласие получено через OTP · точка: '+esc(S.loc.name)+'</span>','✅',
+      [{t:'Привязать устройство',fn:"renderBind('"+c.phone+"')"},{t:'Guided Trail',fn:"renderTrail('"+c.phone+"')"}]),300);
+  }
+}
+function finishScreen(title,text,icon,actions){
+  setBody(`<div class="card result" style="max-width:620px;margin:30px auto">
+    <div class="big">${icon||'✅'}</div><h2>${title}</h2><p class="muted" style="font-size:15px">${text}</p>
+    <div class="row" style="justify-content:center;margin-top:22px">
+      ${(actions||[]).map(a=>`<button class="btn" onclick="${a.fn}">${a.t}</button>`).join('')}
+      <button class="btn primary" onclick="goHome()">На главную</button></div></div>`);
+}
+/* ================= 2.1 / 2.2 ПРИВЯЗКА УСТРОЙСТВА ================= */
+function renderBind(prefill){
+  S.flow={step:0,phone:prefill||'',customer:null,device:'',gift:null};
+  bindStep();
+}
+function bindStep(){
+  const f=S.flow, ST=['Покупатель','Код устройства','Gift','Результат'];
+  const mode=S.online?'2.1 · онлайн':'2.2 · офлайн (GPS + очередь)';
+  if(f.step===0){
+    setBody(head('Привязка устройства','Процесс '+mode)+steps(ST,0)+`
+    <div class="card" style="max-width:620px">
+      ${S.online?'<div class="hint">Онлайн: проверка покупателя выполняется на бэкенде.</div>':'<div class="hint">Офлайн: поиск идёт по локальной БД устройства. Незнакомого покупателя сначала нужно зарегистрировать офлайн.</div>'}
+      <div class="field"><label>Номер телефона покупателя *</label><input id="bPhone" value="${esc(f.phone)}" placeholder="+7 7__ ___ __ __"></div>
+      <div class="muted" style="font-size:12.5px;margin-bottom:12px">Демо-номера: +7 701 234 56 78 (Ерлан), +7 707 111 22 33 (Асель), +7 705 998 77 66 (John Smith)</div>
+      <div id="bFind"></div>
+      <button class="btn primary block" onclick="bindFind()">Найти покупателя</button>
+    </div>`);
+  } else if(f.step===1){
+    setBody(head('Привязка устройства','Процесс '+mode)+steps(ST,1)+`
+    <div class="card" style="max-width:620px">
+      <div class="row" style="margin-bottom:16px"><div class="av" style="width:44px;height:44px;border-radius:12px;background:#eef2f7;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted)">${initials(f.customer.fio)}</div>
+        <div><b>${esc(f.customer.fio)}</b><div class="muted" style="font-size:13px">${esc(f.customer.phone)} · ${f.customer.iin?'ИИН '+esc(f.customer.iin):'паспорт '+esc(f.customer.passport)}</div></div></div>
+      <div class="field"><label>Data Matrix устройства *</label><input id="bDev" value="${esc(f.device)}" placeholder="DM-FLX-____" style="text-transform:uppercase"></div>
+      <div class="row" style="margin-bottom:12px"><button class="btn sm" onclick="document.getElementById('bDev').value='DM-FLX-1001'">Подставить демо-код</button>
+        <span class="muted" style="font-size:12.5px">свободные: DM-FLX-1001, DM-FLX-2201 · занятое: DM-FLX-8842</span></div>
+      <div class="err" id="bErr" style="color:var(--danger);display:none;margin-bottom:10px"></div>
+      <div class="row"><button class="btn" onclick="S.flow.step=0;bindStep()">Назад</button><button class="btn primary" style="flex:1" onclick="bindDevice()">Далее</button></div>
+    </div>`);
+  } else if(f.step===2){
+    setBody(head('Привязка устройства','Процесс '+mode)+steps(ST,2)+`
+    <div class="card" style="max-width:620px">
+      <h3>Выдан подарок (Gift)?</h3>
+      <p class="muted" style="margin-top:-8px">Покупатель: <b>${esc(f.customer.fio)}</b> · устройство <span class="mono">${esc(f.device)}</span></p>
+      <div class="row" style="margin:16px 0">
+        <button class="btn ${f.gift===true?'primary':''}" style="flex:1;padding:22px" onclick="S.flow.gift=true;bindStep()">Да, подарок выдан</button>
+        <button class="btn ${f.gift===false?'dark':''}" style="flex:1;padding:22px" onclick="S.flow.gift=false;bindStep()">Нет</button>
+      </div>
+      <button class="btn primary block" ${f.gift===null?'disabled':''} onclick="bindSubmit()">${S.online?'Привязать устройство':'Сохранить офлайн'}</button>
+    </div>`);
+  }
+}
+function bindFind(){
+  const f=S.flow;f.phone=$('#bPhone').value.trim();
+  const c=findByPhone(f.phone);
+  if(!c){$('#bFind').innerHTML=`<div class="card" style="background:var(--danger-soft);border-color:#fecaca;margin-bottom:14px">
+      <b style="color:var(--danger)">❌ Покупатель не найден</b>
+      <p class="muted" style="margin:6px 0 12px;font-size:13.5px">${S.online?'Сначала зарегистрируйте покупателя (процесс 4.1).':'В локальной БД записи нет — зарегистрируйте офлайн (процесс 4.1).'}</p>
+      <button class="btn primary sm" onclick="renderReg('${esc(f.phone)}')">Зарегистрировать покупателя</button></div>`;return;}
+  f.customer=c;f.step=1;bindStep();
+}
+function bindDevice(){
+  const f=S.flow, code=$('#bDev').value.trim().toUpperCase(), e=$('#bErr');
+  if(!code){e.style.display='block';e.textContent='❌ Введите Data Matrix устройства';return;}
+  if(S.online){ // проверка на бэкенде сразу
+    if(!(code in DEVICES)){e.style.display='block';e.textContent='❌ Data Matrix не найден в системе';return;}
+    if(DEVICES[code]){const o=CUSTOMERS.find(c=>c.id===DEVICES[code]);
+      e.style.display='block';e.innerHTML='❌ Устройство уже привязано к другому пользователю'+(o?' ('+esc(o.fio)+')':'')+'. Привязка невозможна.';return;}
+  }
+  f.device=code;f.step=2;f.gift=null;bindStep();
+}
+function bindSubmit(){
+  const f=S.flow;
+  if(S.online){
+    DEVICES[f.device]=f.customer.id; f.customer.device=f.device;
+    finishScreen('Устройство привязано',`<b>${esc(f.customer.fio)}</b> ↔ <span class="mono">${esc(f.device)}</span><br>Подарок выдан: <b>${f.gift?'Да':'Нет'}</b><br><span class="muted">Точка: ${esc(S.loc.name)} · связка создана в 1С</span>`,'✅',
+      [{t:'Guided Trail',fn:"renderTrail('"+f.customer.phone+"')"}]);
+  } else {
+    const g=gps();
+    S.queue.push({id:uid('q'),type:'Привязка устройства',title:f.customer.fio+' ↔ '+f.device,status:'pending',ts:new Date(),gps:g,loc:S.loc.name,
+      payload:{customer_phone:f.customer.phone,device_code:f.device,gift_given:f.gift},cid:f.customer.id,device:f.device});
+    updBadge();
+    finishScreen('Привязка сохранена локально',`<b>${esc(f.customer.fio)}</b> ↔ <span class="mono">${esc(f.device)}</span><br>Подарок: <b>${f.gift?'Да':'Нет'}</b><br>
+      GPS: <span class="mono">${g.lat}, ${g.lng}</span><br><span class="muted">Статус pending_sync — уйдёт на бэкенд при появлении интернета</span>`,'⏱');
+  }
+}
+
+/* ================= ОЧЕРЕДЬ СИНХРОНИЗАЦИИ ================= */
+function openSync(){
+  const rows=S.queue.length? S.queue.map(q=>`<div class="it" style="cursor:default">
+      <div class="av">${q.status==='synced'?'✓':q.status==='failed'?'✕':'⏱'}</div>
+      <div style="flex:1"><b>${esc(q.title)}</b><div class="muted" style="font-size:12.5px">${esc(q.type)} · ${q.ts.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · GPS ${q.gps.lat}, ${q.gps.lng} · ${esc(q.loc)}</div>
+      ${q.error?`<div style="color:var(--accent);font-size:12.5px;margin-top:3px">${esc(q.error)}</div>`:''}</div>
+      <span class="tag ${q.status==='synced'?'ok':q.status==='failed'?'red':'amber'}">${q.status==='synced'?'synced':q.status==='failed'?'failed':'pending_sync'}</span></div>`).join('')
+    : '<p class="muted">Очередь пуста. Переключитесь в офлайн и выполните регистрацию или привязку — записи появятся здесь.</p>';
+  modal('Очередь синхронизации',`<div class="list">${rows}</div>`,
+    `<button class="btn" onclick="closeModal()">Закрыть</button>
+     <button class="btn primary" ${S.online?'':'disabled'} onclick="syncAll()">${S.online?'Синхронизировать':'Нет интернета'}</button>`);
+}
+function syncAll(){
+  let ok=0,fail=0;
+  S.queue.filter(q=>q.status==='pending').forEach(q=>{
+    if(q.type==='Guided Trail'){ q.status='synced'; ok++; }
+    else if(q.type==='Привязка устройства'){
+      if(DEVICES[q.device]){q.status='failed';q.error='Устройство уже привязано к другому пользователю';fail++;}
+      else{DEVICES[q.device]=q.cid;const c=CUSTOMERS.find(x=>x.id===q.cid);if(c)c.device=q.device;q.status='synced';ok++;}
+    } else {
+      const d=q.payload;
+      CUSTOMERS.push({id:uid('c'),fio:d.fio,phone:d.phone,iin:d.citizen==='kz'?d.docnum:'',passport:d.citizen==='kz'?'':d.docnum,
+        birth:d.birth,doc:d.doc,regBy:ME.id,regType:'hostess',regName:ME.fio,device:''});
+      q.status='synced';ok++;
+    }
+  });
+  updBadge();openSync();
+  toast(`Синхронизация: ${ok} успешно${fail?', '+fail+' с ошибкой':''}`,fail?'err':'ok');
+}
+
+/* ================= 2.3 GUIDED TRAIL ================= */
+function renderTrail(prefill){
+  S.flow={step:0,phone:prefill||'',customer:null,type:null,presLike:null,sticks:[],result:null,reasons:[],other:'',
+          profiling:null,gift:null,activities:{}};
+  trailStep();
+}
+function trailStep(){
+  const f=S.flow, ST=['Покупатель','Тип','Презентация','Результат','Доп. блоки'];
+  if(f.step===0){
+    setBody(head('Guided Trail','Процесс 2.3 · презентация')+steps(ST,0)+`
+    <div class="card" style="max-width:620px">
+      <div class="field"><label>Номер телефона покупателя *</label><input id="tPhone" value="${esc(f.phone)}"></div>
+      <div id="tFind"></div>
+      <button class="btn primary block" onclick="trailFind()">Найти</button>
+      <div class="muted" style="font-size:12.5px;margin-top:10px">Демо: +7 701 234 56 78 · +7 707 111 22 33</div>
+    </div>`);
+  } else if(f.step===1){
+    setBody(head('Guided Trail','Покупатель: '+esc(f.customer.fio))+steps(ST,1)+`
+    <div class="card" style="max-width:660px"><h3>Выберите тип Guided Trail</h3>
+      <div class="tiles" style="grid-template-columns:1fr 1fr">
+        <div class="tile" onclick="S.flow.type='technical';S.flow.step=2;trailStep()"><div class="ic">⚙</div><b>Технический</b><p>Презентация (лайк) → результат → причины отказа</p></div>
+        <div class="tile" onclick="S.flow.type='full';S.flow.step=2;trailStep()"><div class="ic">★</div><b>Полный</b><p>Презентация → дегустация стиков → результат → причины отказа</p></div>
+      </div></div>`);
+  } else if(f.step===2){
+    setBody(head('Guided Trail',(f.type==='full'?'Полный':'Технический')+' · '+esc(f.customer.fio))+steps(ST,2)+`
+    <div class="card" style="max-width:660px">
+      <h3>Презентация проведена?</h3>
+      <div class="like">${likeBtns('presLike')}</div>
+      <p class="muted" style="font-size:12.5px">Лайк можно отжать — значение вернётся в null.</p>
+      ${f.type==='full'?`<h3 style="margin-top:22px">Какие стики были использованы? (дегустация)</h3>
+        ${CFG.sticks.map(s=>`<div class="chk ${f.sticks.includes(s)?'on':''}" onclick="toggleArr('sticks','${s}');trailStep()"><input type="checkbox" ${f.sticks.includes(s)?'checked':''}><span>${s}</span></div>`).join('')}`:''}
+      <div class="row" style="margin-top:18px"><button class="btn" onclick="S.flow.step=1;trailStep()">Назад</button>
+        <button class="btn primary" style="flex:1" onclick="S.flow.step=3;trailStep()">Далее</button></div>
+    </div>`);
+  } else if(f.step===3){
+    setBody(head('Guided Trail','Результат · '+esc(f.customer.fio))+steps(ST,3)+`
+    <div class="card" style="max-width:660px">
+      <h3>Чем завершился Guided Trail?</h3>
+      <div class="row">
+        <button class="btn ${f.result==='sale'?'primary':''}" style="flex:1;padding:20px" onclick="S.flow.result='sale';trailStep()">Продажа</button>
+        <button class="btn ${f.result==='rejection'?'dark':''}" style="flex:1;padding:20px" onclick="S.flow.result='rejection';trailStep()">Отказ</button>
+      </div>
+      ${f.result==='rejection'?`<h3 style="margin-top:22px">Причины отказа</h3>
+        ${CFG.rejections.map(r=>`<div class="chk ${f.reasons.includes(r)?'on':''}" onclick="toggleArr('reasons','${r}');trailStep()"><input type="checkbox" ${f.reasons.includes(r)?'checked':''}><span>${r}</span></div>`).join('')}
+        ${f.reasons.includes('Другое')?`<div class="field"><label>Комментарий</label><input id="tOther" value="${esc(f.other)}" onchange="S.flow.other=this.value"></div>`:''}`:''}
+      <div class="row" style="margin-top:18px"><button class="btn" onclick="S.flow.step=2;trailStep()">Назад</button>
+        <button class="btn primary" style="flex:1" ${f.result?'':'disabled'} onclick="S.flow.step=4;trailStep()">Далее</button></div>
+    </div>`);
+  } else {
+    const doneQ=f.profiling?'<span class="tag ok">заполнено</span>':'<span class="tag">не заполнено</span>';
+    const actCount=Object.keys(f.activities).length;
+    setBody(head('Guided Trail','Дополнительные блоки · '+esc(f.customer.fio))+steps(ST,4)+`
+    <div class="grid" style="grid-template-columns:1fr 1fr;max-width:900px">
+      <div class="card"><h3>Профилирование ${doneQ}</h3><p class="muted" style="margin-top:-6px;font-size:13px">Опросник, настраивается в админке</p>
+        <button class="btn block" onclick="openProfiling()">Открыть профилирование</button></div>
+      <div class="card"><h3>Гифт</h3><p class="muted" style="margin-top:-6px;font-size:13px">Гифт выдан?</p><div class="like">${likeBtns('gift')}</div></div>
+      <div class="card"><h3>Другие активности ${actCount?'<span class="tag ok">'+actCount+'</span>':''}</h3>
+        <p class="muted" style="margin-top:-6px;font-size:13px">Список активностей из админки</p>
+        <button class="btn block" onclick="openActivities()">Открыть активности</button></div>
+      <div class="card" style="background:var(--info-soft);border-color:#cfdcff">
+        <h3>Сводка</h3>
+        <div style="font-size:13.5px;line-height:1.9">
+          Тип: <b>${f.type==='full'?'Полный':'Технический'}</b><br>
+          Презентация: <b>${f.presLike===null?'—':f.presLike?'👍':'👎'}</b><br>
+          ${f.type==='full'?'Стики: <b>'+(f.sticks.join(', ')||'—')+'</b><br>':''}
+          Результат: <b>${f.result==='sale'?'Продажа':'Отказ'}</b><br>
+          ${f.result==='rejection'?'Причины: <b>'+(f.reasons.join(', ')||'—')+'</b><br>':''}
+          Гифт: <b>${f.gift===null?'—':f.gift?'👍':'👎'}</b>
+        </div>
+        <button class="btn block primary" style="margin-top:16px" onclick="trailSubmit()">Завершить Guided Trail</button>
+      </div>
+    </div>`);
+  }
+}
+function likeBtns(key){const v=S.flow[key];
+  return `<button class="${v===true?'on':''}" onclick="setLike('${key}',true)">👍</button><button class="${v===false?'on':''}" onclick="setLike('${key}',false)">👎</button>`;}
+function setLike(key,val){S.flow[key]=(S.flow[key]===val)?null:val;trailStep();}
+function toggleArr(key,val){const a=S.flow[key];const i=a.indexOf(val);i<0?a.push(val):a.splice(i,1);}
+function trailFind(){
+  const f=S.flow;f.phone=$('#tPhone').value.trim();const c=findByPhone(f.phone);
+  if(!c){$('#tFind').innerHTML=`<div class="card" style="background:var(--danger-soft);border-color:#fecaca;margin-bottom:14px">
+    <b style="color:var(--danger)">❌ Покупатель не найден</b><p class="muted" style="margin:6px 0 12px;font-size:13.5px">Сначала зарегистрируйте (процесс 4.1).</p>
+    <button class="btn primary sm" onclick="renderReg('${esc(f.phone)}')">Зарегистрировать</button></div>`;return;}
+  f.customer=c;f.step=1;trailStep();
+}
+function openProfiling(){
+  const ans=S.flow.profiling||{};
+  modal('Профилирование',CFG.questions.map((q,qi)=>`<div style="margin-bottom:16px"><b>${esc(q.q)}</b>
+    <div style="margin-top:8px">${q.a.map(a=>`<div class="chk ${(ans[qi]||[]).includes(a)?'on':''}" onclick="pfToggle(${qi},'${esc(a)}',this)"><input type="checkbox" ${(ans[qi]||[]).includes(a)?'checked':''}><span>${esc(a)}</span></div>`).join('')}</div></div>`).join(''),
+    `<button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" onclick="pfSave()">Сохранить</button>`);
+  window._pf=JSON.parse(JSON.stringify(ans));
+}
+function pfToggle(qi,a,el){const pf=window._pf;pf[qi]=pf[qi]||[];const i=pf[qi].indexOf(a);i<0?pf[qi].push(a):pf[qi].splice(i,1);
+  el.classList.toggle('on');el.querySelector('input').checked=pf[qi].includes(a);}
+function pfSave(){S.flow.profiling=window._pf;closeModal();toast('Профилирование сохранено','ok');trailStep();}
+function openActivities(){
+  modal('Другие цикловые активности',CFG.activities.map((a,i)=>{const v=S.flow.activities[a.name];
+    return `<div class="card" style="margin-bottom:12px"><div class="row"><b style="flex:1">${esc(a.name)}</b>
+      <button class="btn sm ${v===true?'primary':''}" onclick="actLike('${esc(a.name)}',true)">👍</button>
+      <button class="btn sm ${v===false?'dark':''}" onclick="actLike('${esc(a.name)}',false)">👎</button></div>
+      ${a.type==='like_form'?'<div class="muted" style="font-size:12.5px;margin-top:8px">+ короткий опросник (настраивается в админке)</div>':''}</div>`}).join(''),
+    `<button class="btn primary" onclick="closeModal();trailStep()">Готово</button>`);
+}
+function actLike(name,v){S.flow.activities[name]=(S.flow.activities[name]===v)?undefined:v;
+  if(S.flow.activities[name]===undefined)delete S.flow.activities[name];openActivities();}
+function trailSubmit(){
+  const f=S.flow;
+  const payload={customer_id:f.customer.id,hostess_id:ME.id,location_id:S.loc.id,trail_type:f.type,presentation_like:f.presLike,
+    sticks_used:f.sticks,result:f.result,rejection_reasons:f.reasons,profiling:f.profiling,gift_given:f.gift,activities:f.activities};
+  if(!S.online){
+    const g=gps();
+    S.queue.push({id:uid('q'),type:'Guided Trail',title:f.customer.fio+' · '+(f.type==='full'?'полный':'технический'),status:'pending',ts:new Date(),gps:g,loc:S.loc.name,payload});
+    updBadge();
+    finishScreen('Guided Trail сохранён офлайн',`<b>${esc(f.customer.fio)}</b> · ${f.type==='full'?'полный':'технический'}<br>
+      GPS: <span class="mono">${g.lat}, ${g.lng}</span><br><span class="muted">Статус pending_sync — уйдёт на бэкенд при появлении интернета</span>`,'⏱');
+    return;
+  }
+  finishScreen('Guided Trail завершён',`<b>${esc(f.customer.fio)}</b> · ${f.type==='full'?'полный':'технический'} · ${f.result==='sale'?'продажа':'отказ'}
+    <div class="mono" style="text-align:left;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:16px;font-size:11.5px;white-space:pre-wrap">${esc(JSON.stringify(payload,null,1))}</div>`,'✅');
+}
+
+/* ================= 2.4 МОИ ПОКУПАТЕЛИ ================= */
+function renderCust(){
+  setBody(head('Мои покупатели','Процесс 2.4 · только зарегистрированные вами')+`
+  <div class="hint">Бэкенд фильтрует список: <span class="mono">registered_by_id = ${ME.id} AND registered_by_type = hostess</span>. Покупателей, зарегистрированных другими, редактировать нельзя.</div>
+  <div class="field" style="max-width:420px"><input id="cq" placeholder="Поиск по ФИО, телефону, ИИН" oninput="custList()"></div>
+  <div id="custList" class="list"></div>`);
+  custList();
+}
+function custList(){
+  const q=($('#cq').value||'').toLowerCase();
+  const mine=myCustomers().filter(c=>!q||(c.fio+c.phone+c.iin+c.passport).toLowerCase().includes(q));
+  const others=q?CUSTOMERS.filter(c=>c.regBy!==ME.id&&(c.fio+c.phone+c.iin+c.passport).toLowerCase().includes(q)):[];
+  $('#custList').innerHTML=(mine.map(c=>`<div class="it" onclick="custCard('${c.id}')">
+      <div class="av">${initials(c.fio)}</div>
+      <div style="flex:1"><b>${esc(c.fio)}</b><div class="muted" style="font-size:13px">${esc(c.phone)} · ${c.iin?'ИИН '+esc(c.iin):'паспорт '+esc(c.passport)}</div></div>
+      ${c.device?`<span class="tag ok mono">${esc(c.device)}</span>`:''}<span class="tag blue">Зарегистрирован вами</span></div>`).join('')||'<p class="muted">Ничего не найдено</p>')
+    +(others.length?`<div class="muted" style="margin:18px 0 8px;font-size:12.5px">Найдено вне вашего доступа:</div>`+others.map(c=>`<div class="it" style="opacity:.7" onclick="noAccess('${esc(c.regName)}')">
+      <div class="av">${initials(c.fio)}</div><div style="flex:1"><b>${esc(c.fio)}</b><div class="muted" style="font-size:13px">${esc(c.phone)}</div></div>
+      <span class="tag red">Нет прав</span></div>`).join(''):'');
+}
+function noAccess(by){modal('Нет прав доступа',`<p>❌ Вы не можете редактировать этого покупателя.</p><p class="muted">Зарегистрирован: <b>${esc(by)}</b>. Хостес видит и редактирует только своих пользователей.</p>`,'');}
+function custCard(id){
+  const c=CUSTOMERS.find(x=>x.id===id);
+  modal('Профиль покупателя',`
+    <div class="row" style="margin-bottom:14px"><div class="av" style="width:46px;height:46px;border-radius:13px;background:#eef2f7;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted)">${initials(c.fio)}</div>
+      <div><b style="font-size:17px">${esc(c.fio)}</b><div class="muted" style="font-size:13px">Зарегистрирован вами</div></div></div>
+    <table>
+      <tr><td class="muted">Телефон</td><td class="mono">${esc(c.phone)}</td></tr>
+      <tr><td class="muted">${c.iin?'ИИН':'Номер паспорта'}</td><td class="mono">${esc(c.iin||c.passport)}</td></tr>
+      <tr><td class="muted">Дата рождения</td><td>${esc(c.birth||'—')}</td></tr>
+      <tr><td class="muted">Документ</td><td>${esc(c.doc)}</td></tr>
+      <tr><td class="muted">Устройство</td><td>${c.device?'<span class="tag ok mono">'+esc(c.device)+'</span>':'<span class="muted">не привязано</span>'}</td></tr>
+    </table>`,
+    `<button class="btn" onclick="closeModal()">Закрыть</button><button class="btn primary" onclick="custEdit('${c.id}')">Редактировать</button>`);
+}
+function custEdit(id){
+  const c=CUSTOMERS.find(x=>x.id===id);
+  modal('Редактирование профиля',`
+    <div class="field"><label>ФИО</label><input id="eFio" value="${esc(c.fio)}"></div>
+    <div class="field"><label>Телефон</label><input id="ePhone" value="${esc(c.phone)}"></div>
+    <div class="field"><label>${c.iin?'ИИН':'Номер паспорта'}</label><input id="eDoc" value="${esc(c.iin||c.passport)}"></div>
+    <div class="field"><label>Дата рождения</label><input type="date" id="eBirth" value="${esc(c.birth)}"></div>
+    <div class="field"><label>Документ</label><input id="eDocType" value="${esc(c.doc)}"></div>
+    <p class="muted" style="font-size:12.5px">Все изменения логируются: кто, что и когда изменил.</p>`,
+    `<button class="btn" onclick="custCard('${id}')">Отмена</button><button class="btn primary" onclick="custSave('${id}')">Сохранить</button>`);
+}
+function custSave(id){
+  const c=CUSTOMERS.find(x=>x.id===id);
+  c.fio=$('#eFio').value.trim();c.phone=$('#ePhone').value.trim();
+  if(c.iin)c.iin=$('#eDoc').value.trim();else c.passport=$('#eDoc').value.trim();
+  c.birth=$('#eBirth').value;c.doc=$('#eDocType').value;
+  closeModal();custList();toast('✅ Профиль покупателя обновлён','ok');
+}
+updBadge();
+</script>
+</body>
+</html>
