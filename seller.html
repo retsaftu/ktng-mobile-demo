@@ -966,7 +966,7 @@ function regStep(){
     setBody(head('Регистрация покупателя','Процесс 4.1 · шаг 4: ИИН')+steps(ST,3)+`
     <div class="card" style="max-width:680px">
       <label class="chk ${f.foreign?'on':''}" onclick="S.flow.foreign=!S.flow.foreign;S.flow.service=null;regStep()">
-        <input type="checkbox" ${f.foreign?'checked':''}><span>Покупатель не гражданин РК</span></label>
+        <input type="checkbox" ${f.foreign?'checked':''}><span>Покупатель не резидент РК</span></label>
       ${f.foreign? `
         <div class="hint">Для не граждан РК сервис по ИИН недоступен: данные вносятся с документа.</div>
         <div class="row" style="gap:14px"><div class="field" style="flex:1"><label>Номер паспорта *</label><input id="fPass" value="${esc(f.passport)}"></div>
