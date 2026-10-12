@@ -456,7 +456,7 @@ function regStep(){
       <label class="chk ${f.foreign?'on':''}" onclick="S.flow.foreign=!S.flow.foreign;S.flow.service=null;regStep()">
         <input type="checkbox" ${f.foreign?'checked':''}><span>Покупатель не резидент РК</span></label>
       ${f.foreign? `
-        <div class="hint">Для не граждан РК сервис по ИИН недоступен: данные вносятся с документа.</div>
+        <div class="hint">Для не резидентов РК сервис по ИИН недоступен: данные вносятся с документа.</div>
         <div class="row" style="gap:14px"><div class="field" style="flex:1"><label>Номер паспорта *</label><input id="fPass" value="${esc(f.passport)}"></div>
           <div class="field" style="flex:1"><label>Тип документа</label><select id="fDoc">${['Паспорт','ID-карта','Вид на жительство','Другое'].map(d=>`<option ${f.docType===d?'selected':''}>${d}</option>`).join('')}</select></div></div>
         <div class="row" style="gap:14px"><div class="field" style="flex:1"><label>ФИО *</label><input id="fFio" value="${esc(f.fio)}"></div>
